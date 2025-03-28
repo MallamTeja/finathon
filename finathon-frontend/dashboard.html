@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Finathon</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Finathon Dashboard</h1>
+    </header>
+
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <button onclick="loadSection('addTransaction')">Add Transactions</button>
+            <button onclick="loadSection('viewInsights')">View Insights</button>
+            <button onclick="loadSection('settings')">Settings</button>
+            <button onclick="logout()">Logout</button>
+        </div>
+
+        <!-- Main Content Sections -->
+        <div class="main-content">
+            <div id="addTransaction">
+                <h2>Add Transaction</h2>
+                <input type="number" id="transactionAmount" placeholder="Amount">
+                <input type="text" id="transactionCategory" placeholder="Category">
+                <select id="transactionType">
+                    <option value="income">Income</option>
+                    <option value="expense">Expense</option>
+                </select>
+                <button onclick="addTransaction()">Submit</button>
+            </div>
+
+            <div id="viewInsights" style="display: none;">
+                <h2>View Insights (Coming Soon)</h2>
+            </div>
+
+            <div id="settings" style="display: none;">
+                <h2>Settings (Coming Soon)</h2>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
