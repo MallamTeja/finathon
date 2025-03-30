@@ -3,46 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Finathon</title>
+    <title>Finathon Dashboard</title>
     <link rel="stylesheet" href="styles.css">
+    <script defer src="script.js"></script>
 </head>
 <body>
-    <header>
-        <h1>Finathon Dashboard</h1>
-    </header>
-
     <div class="dashboard-container">
-        <!-- Sidebar Navigation -->
-        <div class="sidebar">
-            <button onclick="loadSection('addTransaction')">Add Transactions</button>
-            <button onclick="loadSection('viewInsights')">View Insights</button>
-            <button onclick="loadSection('settings')">Settings</button>
-            <button onclick="logout()">Logout</button>
-        </div>
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <h2>Finathon</h2>
+            <ul>
+                <li><a href="#" id="addTransactionBtn">➕ Add Transaction</a></li>
+                <li><a href="#" id="viewInsightsBtn">📊 View Insights</a></li>
+                <li><a href="#" id="logoutBtn">🚪 Logout</a></li>
+            </ul>
+        </aside>
 
-        <!-- Main Content Sections -->
-        <div class="main-content">
-            <div id="addTransaction">
-                <h2>Add Transaction</h2>
-                <input type="number" id="transactionAmount" placeholder="Amount">
-                <input type="text" id="transactionCategory" placeholder="Category">
-                <select id="transactionType">
-                    <option value="income">Income</option>
-                    <option value="expense">Expense</option>
-                </select>
-                <button onclick="addTransaction()">Submit</button>
-            </div>
+        <!-- Main Content -->
+        <main class="main-content">
+            <header>
+                <h2>Welcome, <span id="username">User</span>!</h2>
+            </header>
 
-            <div id="viewInsights" style="display: none;">
-                <h2>View Insights (Coming Soon)</h2>
-            </div>
+            <section class="financial-summary">
+                <div class="card income">
+                    <h3>Total Income</h3>
+                    <p id="totalIncome">₹0.00</p>
+                </div>
+                <div class="card expense">
+                    <h3>Total Expenses</h3>
+                    <p id="totalExpenses">₹0.00</p>
+                </div>
+                <div class="card balance">
+                    <h3>Current Balance</h3>
+                    <p id="currentBalance">₹0.00</p>
+                </div>
+            </section>
 
-            <div id="settings" style="display: none;">
-                <h2>Settings (Coming Soon)</h2>
+            <section class="charts">
+                <h3>Financial Insights</h3>
+                <canvas id="expenseChart"></canvas>
+            </section>
+
+            <!-- Transaction Form (Hidden by Default) -->
+            <div id="transactionForm" class="modal">
+                <div class="modal-content">
+                    <h3>Add Transaction</h3>
+                    <form id="transactionFormElement">
+                        <input type="number" id="amount" placeholder="Amount" required>
+                        <select id="category">
+                            <option value="Food">Food</option>
+                            <option value="Transport">Transport</option>
+                            <option value="Shopping">Shopping</option>
+                            <option value="Bills">Bills</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <select id="type">
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
+                        </select>
+                        <button type="submit">Add</button>
+                        <button type="button" id="closeFormBtn">Close</button>
+                    </form>
+                </div>
             </div>
-        </div>
+        </main>
     </div>
-
-    <script src="script.js"></script>
 </body>
 </html>

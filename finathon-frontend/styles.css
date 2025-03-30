@@ -1,50 +1,9 @@
-/* General Styles */
+/* Global Styles */
 body {
     font-family: Arial, sans-serif;
-    text-align: center;
-    background-color: #f5f5f5;
     margin: 0;
     padding: 0;
-}
-
-header {
-    background: #4CAF50;
-    color: white;
-    padding: 1rem;
-    text-align: center;
-}
-
-/* Container for Forms */
-.container {
-    max-width: 400px;
-    margin: 20px auto;
-    padding: 20px;
-    background: white;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-}
-
-h2 {
-    color: #333;
-}
-
-input, select, button {
-    width: 100%;
-    margin: 10px 0;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-
-button {
-    background: #4CAF50;
-    color: white;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-button:hover {
-    background: #45a049;
+    background-color: #f4f4f4;
 }
 
 /* Dashboard Layout */
@@ -53,44 +12,137 @@ button:hover {
     height: 100vh;
 }
 
+/* Sidebar */
 .sidebar {
     width: 250px;
-    background: #333;
-    padding: 20px;
-    text-align: left;
-}
-
-.sidebar button {
-    display: block;
-    width: 100%;
-    background: #4CAF50;
+    background-color: #3f51b5;
     color: white;
-    border: none;
-    padding: 10px;
-    margin: 10px 0;
-    text-align: left;
-    cursor: pointer;
-}
-
-.sidebar button:hover {
-    background: #45a049;
-}
-
-.main-content {
-    flex: 1;
     padding: 20px;
-    background: white;
 }
 
-/* Transaction List */
-.transaction-list ul {
+.sidebar h2 {
+    text-align: center;
+}
+
+.sidebar ul {
     list-style: none;
     padding: 0;
 }
 
-.transaction-list li {
-    background: #eee;
-    margin: 5px 0;
+.sidebar ul li {
+    margin: 20px 0;
+}
+
+.sidebar ul li a {
+    text-decoration: none;
+    color: white;
+    display: block;
     padding: 10px;
+    background: #3949ab;
+    text-align: center;
     border-radius: 5px;
+    transition: 0.3s;
+}
+
+.sidebar ul li a:hover {
+    background: #283593;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    padding: 20px;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header h2 {
+    color: #333;
+}
+
+/* Financial Summary */
+.financial-summary {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+.card {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 30%;
+}
+
+.income {
+    border-left: 5px solid green;
+}
+
+.expense {
+    border-left: 5px solid red;
+}
+
+.balance {
+    border-left: 5px solid blue;
+}
+
+/* Charts Section */
+.charts {
+    margin-top: 40px;
+    text-align: center;
+}
+
+canvas {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Transaction Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.modal-content input,
+.modal-content select,
+.modal-content button {
+    margin: 10px 0;
+    padding: 10px;
+    width: 100%;
+    max-width: 300px;
+}
+
+.modal-content button {
+    background: #3f51b5;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.modal-content button:hover {
+    background: #303f9f;
+}
+
+/* Logout Button */
+#logoutBtn {
+    background: red !important;
 }
