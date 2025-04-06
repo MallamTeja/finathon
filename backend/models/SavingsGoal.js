@@ -8,24 +8,38 @@ const savingsGoalSchema = new mongoose.Schema({
     },
     title: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
-    target: {
+    target_amount: {
         type: Number,
-        required: true
+        required: true,
+        min: 0
     },
-    saved: {
+    current_amount: {
         type: Number,
-        default: 0
+        default: 0,
+        min: 0
     },
-    deadline: {
+    due_date: {
         type: Date,
-        required: true
+        required: true,
+        validate: {
+            validator: function(value) {
+                return value instanceof Date && !isNaN(value);
+            },
+            message: 'Invalid date format'
+        }
     },
     category: {
         type: String,
         required: true,
-        enum: ['travel', 'gadget', 'emergency', 'other']
+        enum: ['Emergency Fund', 'Vacation', 'Education', 'Home', 'Car', 'Other']
+    },
+    status: {
+        type: String,
+        enum: ['In Progress', 'Completed', 'Failed'],
+        default: 'In Progress'
     }
 }, {
     timestamps: true
