@@ -17,11 +17,60 @@
             --border: #e5e7eb;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
+        [data-theme="dark"] {
+            --primary: #7c9eff;
+            --secondary: #6c8eff;
+            --success: #4ade80;
+            --danger: #f87171;
+            --warning: #fbbf24;
+            --text: #e5e7eb;
+            --bg: #111827;
+            --border: #374151;
+        }
+
+        [data-theme="dark"] .sidebar {
+            background: #1f2937;
+        }
+
+        [data-theme="dark"] .card,
+        [data-theme="dark"] .transaction-list,
+        [data-theme="dark"] .goal-card,
+        [data-theme="dark"] .chart-container,
+        [data-theme="dark"] .settings-form {
+            background: #1f2937;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        [data-theme="dark"] .nav-button {
+            background: #1f2937;
+            color: var(--text);
+        }
+
+        [data-theme="dark"] .nav-button:hover {
+            background: #374151;
+        }
+
+        [data-theme="dark"] .nav-button.active {
+            background: var(--primary);
+            color: #111827;
+        }
+
+        [data-theme="dark"] .progress-bar {
+            background: #374151;
+        }
+
+        [data-theme="dark"] .transaction-item {
+            border-bottom-color: #374151;
+        }
+
+        [data-theme="dark"] h1,
+        [data-theme="dark"] h2,
+        [data-theme="dark"] h3 {
+            color: #f9fafb;
+        }
+
+        [data-theme="dark"] .text-sm {
+            color: #9ca3af;
         }
 
         body {
@@ -29,6 +78,7 @@
             grid-template-columns: 240px 1fr;
             min-height: 100vh;
             background: var(--bg);
+            transition: background-color 0.3s, color 0.3s;
         }
 
         /* Enhanced Sidebar */
@@ -174,6 +224,25 @@
             margin-bottom: 1rem;
         }
 
+        .theme-toggle {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 1.5rem;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.3s;
+            z-index: 1000;
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--border);
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -181,6 +250,12 @@
     </style>
 </head>
 <body>
+    <!-- Theme Toggle Button -->
+    <button class="theme-toggle" id="themeToggle">
+        <span class="light-icon">☀️</span>
+        <span class="dark-icon" style="display: none;">🌙</span>
+    </button>
+
     <!-- Sidebar Navigation -->
     <div class="sidebar">
         <div class="logo">
@@ -318,6 +393,36 @@
     </div>
 
     <script>
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const lightIcon = themeToggle.querySelector('.light-icon');
+        const darkIcon = themeToggle.querySelector('.dark-icon');
+        
+        // Check for saved theme preference
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', currentTheme);
+        updateThemeIcons(currentTheme);
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcons(newTheme);
+        });
+
+        function updateThemeIcons(theme) {
+            if (theme === 'light') {
+                lightIcon.style.display = 'inline';
+                darkIcon.style.display = 'none';
+            } else {
+                lightIcon.style.display = 'none';
+                darkIcon.style.display = 'inline';
+            }
+        }
+
+        // Existing section switching code
         function showSection(sectionId) {
             // Hide all sections
             document.querySelectorAll('.section').forEach(section => {
