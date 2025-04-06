@@ -4,467 +4,778 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fintrack - Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.css">
     <style>
         :root {
-            --bg-color: #ffffff;
-            --text-color: #333;
+            --bg-color: #f8f9fa;
+            --text-color: #2d3436;
             --card-bg: #ffffff;
             --header-bg: #ffffff;
-            --button-bg: #007bff;
-            --button-hover: #0056b3;
-            --shadow-color: rgba(0,0,0,0.1);
-            --input-border: #ddd;
-            --input-focus: #007bff;
-            --error-color: #dc3545;
-            --success-color: #28a745;
-            --accent-color: #007bff;
-            --accent-hover: #0056b3;
-            --gradient-start: #ffffff;
-            --gradient-end: #f8f9fa;
-            --income-color: #28a745;
-            --expense-color: #dc3545;
-            --savings-color: #ffc107;
+            --button-bg: #0984e3;
+            --button-hover: #0069d9;
+            --shadow-color: rgba(0,0,0,0.08);
+            --input-border: #e1e8ef;
+            --input-focus: #0984e3;
+            --gradient-start: #f8f9fa;
+            --gradient-end: #ffffff;
+            --accent-color: #0984e3;
+            --accent-hover: #0069d9;
+            --error-color: #ff7675;
+            --success-color: #00b894;
+            --warning-color: #fdcb6e;
+            --muted-text: #636e72;
+            --border-color: #e1e8ef;
+            --card-border: rgba(225, 232, 239, 0.8);
+            --income-color: #00b894;
+            --expense-color: #ff7675;
+            --savings-color: #0984e3;
+            --chart-grid: #f1f3f5;
         }
 
         [data-theme="dark"] {
-            --bg-color: #000000;
+            --bg-color: #1e1e2e;
             --text-color: #ffffff;
-            --card-bg: #1a1a1a;
-            --header-bg: #1a1a1a;
-            --button-bg: #007bff;
-            --button-hover: #0056b3;
-            --shadow-color: rgba(0,0,0,0.4);
-            --input-border: #333333;
-            --input-focus: #007bff;
-            --gradient-start: #1a1a1a;
-            --gradient-end: #333333;
-            --accent-color: #007bff;
-            --accent-hover: #0056b3;
-            --error-color: #dc3545;
-            --success-color: #28a745;
-            --income-color: #28a745;
-            --expense-color: #dc3545;
-            --savings-color: #ffc107;
+            --card-bg: #2d3436;
+            --header-bg: #2d3436;
+            --button-bg: #0984e3;
+            --button-hover: #0069d9;
+            --shadow-color: rgba(0,0,0,0.2);
+            --input-border: #404756;
+            --input-focus: #0984e3;
+            --gradient-start: #1e1e2e;
+            --gradient-end: #2d3436;
+            --accent-color: #0984e3;
+            --accent-hover: #0069d9;
+            --error-color: #ff7675;
+            --success-color: #00b894;
+            --warning-color: #fdcb6e;
+            --muted-text: #b2bec3;
+            --border-color: #404756;
+            --card-border: rgba(64, 71, 86, 0.8);
+            --chart-grid: #404756;
         }
 
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
 
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
+            line-height: 1.6;
             transition: background-color 0.3s, color 0.3s;
-            background-image: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
-            min-height: 100vh;
         }
 
         .dashboard-container {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 1.75rem;
-            opacity: 0;
-            animation: fadeIn 0.5s ease-out forwards;
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
         }
 
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.75rem;
-            padding: 0.9rem;
+        /* Sidebar Styles */
+        .sidebar {
             background: var(--card-bg);
-            border-radius: 14px;
-            box-shadow: 0 4px 15px var(--shadow-color);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-right: 1px solid var(--border-color);
+            position: fixed;
+            width: 250px;
+            height: 100vh;
+            overflow-y: auto;
         }
 
         .logo {
-            font-size: 1.75rem;
+            font-size: 1.8rem;
             font-weight: 700;
-            background: linear-gradient(90deg, #007bff, #00bfff);
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, var(--accent-color), #00b894);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
         }
 
-        .header-controls {
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
             display: flex;
-            gap: 0.9rem;
             align-items: center;
+            padding: 0.8rem 1rem;
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s ease;
         }
 
-        .theme-toggle {
-            width: 75px;
-            height: 38px;
-            background: var(--input-border);
-            border-radius: 19px;
-            cursor: pointer;
-            position: relative;
-            transition: all 0.3s ease;
+        .nav-link i {
+            margin-right: 0.8rem;
+            font-size: 1.1rem;
+            width: 24px;
+            text-align: center;
         }
 
-        .theme-toggle .slider {
-            position: absolute;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: var(--text-color);
-            left: 4px;
-            top: 4px;
-            transition: all 0.3s ease;
-        }
-
-        [data-theme="dark"] .theme-toggle .slider {
-            left: 41px;
-        }
-
-        .theme-toggle:hover {
-            transform: scale(1.05);
-        }
-
-        .theme-toggle:active {
-            transform: scale(0.95);
-        }
-
-        .theme-toggle:active .slider {
-            transform: scale(0.9);
-        }
-
-        .logout-btn {
-            padding: 0.7rem 1.25rem;
-            background: linear-gradient(90deg, #007bff, #00bfff);
+        .nav-link:hover,
+        .nav-link.active {
+            background: var(--accent-color);
             color: white;
-            border: none;
-            border-radius: 7px;
-            cursor: pointer;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            padding: 2rem;
+            margin-left: 250px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background-color: var(--header-bg);
+            box-shadow: var(--card-shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .welcome-text {
+            font-size: 1.5rem;
             font-weight: 600;
-            transition: all 0.3s ease;
+        }
+
+        .search-bar {
+            position: relative;
+        }
+
+        .search-bar input {
+            padding: 0.6rem 1rem 0.6rem 2.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            width: 300px;
             font-size: 0.95rem;
         }
 
-        .logout-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,123,255,0.3);
-            background: linear-gradient(90deg, #0056b3, #0088cc);
+        .search-bar i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted-text);
         }
 
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 1.5rem;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--input-bg);
+            transform: rotate(15deg);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: background-color 0.2s ease;
+        }
+
+        .user-profile:hover {
+            background: var(--border-color);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .user-info {
+            line-height: 1.3;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .user-email {
+            color: var(--muted-text);
+            font-size: 0.85rem;
+        }
+
+        /* Dashboard Grid */
         .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.75rem;
-            margin-bottom: 1.75rem;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
         }
 
         .card {
             background: var(--card-bg);
-            padding: 1.25rem;
-            border-radius: 14px;
-            box-shadow: 0 4px 15px var(--shadow-color);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: transform 0.3s ease;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 24px var(--shadow-color);
+            border: 1px solid var(--card-border);
         }
 
-        .card:hover {
-            transform: translateY(-5px);
+        .stat-card {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
         }
 
-        .card h3 {
-            margin-bottom: 0.9rem;
-            color: var(--text-color);
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .income-icon {
+            background: rgba(0, 184, 148, 0.1);
+            color: var(--income-color);
+        }
+
+        .expense-icon {
+            background: rgba(255, 118, 117, 0.1);
+            color: var(--expense-color);
+        }
+
+        .savings-icon {
+            background: rgba(9, 132, 227, 0.1);
+            color: var(--savings-color);
+        }
+
+        .stat-info h3 {
+            font-size: 0.9rem;
+            color: var(--muted-text);
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-info .amount {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .stat-info .trend {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.85rem;
+            margin-top: 0.3rem;
+        }
+
+        .trend.positive {
+            color: var(--success-color);
+        }
+
+        .trend.negative {
+            color: var(--error-color);
+        }
+
+        /* Charts Section */
+        .charts-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            position: relative;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-title {
             font-size: 1.1rem;
             font-weight: 600;
         }
 
-        .balance {
-            font-size: 2.25rem;
-            font-weight: 700;
-            margin-bottom: 0.4rem;
-            background: linear-gradient(90deg, #007bff, #00bfff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .chart-actions {
+            display: flex;
+            gap: 0.5rem;
         }
 
-        .income {
-            color: #28a745;
-        }
-
-        .expense {
-            color: #dc3545;
-        }
-
-        .savings {
-            color: #ffc107;
-        }
-
-        .transaction-form {
-            background: var(--card-bg);
-            padding: 1.75rem;
-            border-radius: 14px;
-            box-shadow: 0 4px 15px var(--shadow-color);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            margin-bottom: 1.75rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.25rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.4rem;
-            color: var(--text-color);
-            font-weight: 500;
-            font-size: 0.85rem;
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 0.7rem 0.9rem;
-            border: 2px solid var(--input-border);
-            border-radius: 7px;
+        .chart-button {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
             background: var(--card-bg);
             color: var(--text-color);
-            transition: all 0.3s ease;
-            font-size: 0.95rem;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
-            outline: none;
-        }
-
-        .submit-btn {
-            width: 100%;
-            padding: 0.9rem;
-            background: linear-gradient(90deg, #007bff, #00bfff);
-            color: white;
-            border: none;
-            border-radius: 7px;
             cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
         }
 
-        .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,123,255,0.3);
-            background: linear-gradient(90deg, #0056b3, #0088cc);
+        .chart-button:hover,
+        .chart-button.active {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
         }
 
+        /* Recent Transactions */
         .transactions-list {
-            background: var(--card-bg);
-            padding: 1.75rem;
-            border-radius: 14px;
-            box-shadow: 0 4px 15px var(--shadow-color);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            list-style: none;
         }
 
         .transaction-item {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            padding: 0.9rem;
-            border-bottom: 1px solid var(--input-border);
-            transition: background-color 0.3s ease;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .transaction-item:last-child {
             border-bottom: none;
         }
 
-        .transaction-item:hover {
-            background-color: rgba(255, 255, 255, 0.05);
+        .transaction-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.1rem;
         }
 
         .transaction-details {
             flex: 1;
         }
 
+        .transaction-title {
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .transaction-date {
+            font-size: 0.85rem;
+            color: var(--muted-text);
+        }
+
         .transaction-amount {
             font-weight: 600;
-            margin-left: 1rem;
         }
 
-        .transaction-amount.income {
-            color: #28a745;
+        .amount-income {
+            color: var(--income-color);
         }
 
-        .transaction-amount.expense {
-            color: #dc3545;
+        .amount-expense {
+            color: var(--expense-color);
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .charts-section {
+                grid-template-columns: 1fr;
             }
-            to {
-                opacity: 1;
-                transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+
+            .header-actions {
+                width: 100%;
+            }
+
+            .search-bar {
+                flex: 1;
+            }
+
+            .search-bar input {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-card {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .stat-info .trend {
+                justify-content: center;
             }
         }
     </style>
 </head>
 <body>
     <div class="dashboard-container">
-        <header>
+        <aside class="sidebar">
             <div class="logo">Fintrack</div>
-            <div class="header-controls">
-                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
-                    <div class="slider"></div>
-                </button>
-                <button class="logout-btn" onclick="logout()">Logout</button>
-            </div>
-        </header>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active">
+                            <i class="fas fa-home"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-wallet"></i>
+                            Transactions
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-chart-pie"></i>
+                            Analytics
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-piggy-bank"></i>
+                            Budgets
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-calendar"></i>
+                            Calendar
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-cog"></i>
+                            Settings
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
 
-        <div class="dashboard-grid">
-            <div class="card">
-                <h3>Total Balance</h3>
-                <div class="balance">$5,000.00</div>
-                <div class="trend">+2.5% from last month</div>
-            </div>
-            <div class="card">
-                <h3>Monthly Income</h3>
-                <div class="balance income">$3,500.00</div>
-                <div class="trend">+5% from last month</div>
-            </div>
-            <div class="card">
-                <h3>Monthly Expenses</h3>
-                <div class="balance expense">$2,000.00</div>
-                <div class="trend">-3% from last month</div>
-            </div>
-            <div class="card">
-                <h3>Savings</h3>
-                <div class="balance savings">$1,500.00</div>
-                <div class="trend">+8% from last month</div>
-            </div>
-        </div>
+        <main class="main-content">
+            <header class="header">
+                <div class="header-left">
+                    <h1>FinTrack</h1>
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search transactions...">
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="theme-toggle" id="themeToggle">
+                        <i class="fas fa-sun"></i>
+                    </button>
+                    <div class="user-profile">
+                        <img src="https://via.placeholder.com/40" alt="Profile" class="profile-image">
+                        <span class="profile-name">John Doe</span>
+                    </div>
+                </div>
+            </header>
 
-        <div class="transaction-form">
-            <h3>Add Transaction</h3>
-            <form id="transactionForm">
-                <div class="form-group">
-                    <label for="description">Description</label>
-                    <input type="text" id="description" required>
+            <section class="dashboard-grid">
+                <div class="card stat-card">
+                    <div class="stat-icon income-icon">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Total Income</h3>
+                        <div class="amount">$8,459.00</div>
+                        <div class="trend positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>12.5%</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="amount">Amount</label>
-                    <input type="number" id="amount" step="0.01" required>
-                </div>
-                <div class="form-group">
-                    <label for="type">Type</label>
-                    <select id="type" required>
-                        <option value="income">Income</option>
-                        <option value="expense">Expense</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="category">Category</label>
-                    <select id="category" required>
-                        <option value="salary">Salary</option>
-                        <option value="food">Food</option>
-                        <option value="transport">Transport</option>
-                        <option value="entertainment">Entertainment</option>
-                        <option value="utilities">Utilities</option>
-                        <option value="other">Other</option>
-                    </select>
-                </div>
-                <button type="submit" class="submit-btn">Add Transaction</button>
-            </form>
-        </div>
 
-        <div class="transactions-list">
-            <h3>Recent Transactions</h3>
-            <div class="transaction-item">
-                <div class="transaction-details">
-                    <div class="transaction-description">Salary</div>
-                    <div class="transaction-date">2024-03-01</div>
+                <div class="card stat-card">
+                    <div class="stat-icon expense-icon">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Total Expenses</h3>
+                        <div class="amount">$3,872.00</div>
+                        <div class="trend negative">
+                            <i class="fas fa-arrow-down"></i>
+                            <span>8.2%</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="transaction-amount income">+$3,500.00</div>
-            </div>
-            <div class="transaction-item">
-                <div class="transaction-details">
-                    <div class="transaction-description">Groceries</div>
-                    <div class="transaction-date">2024-03-02</div>
+
+                <div class="card stat-card">
+                    <div class="stat-icon savings-icon">
+                        <i class="fas fa-piggy-bank"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Total Savings</h3>
+                        <div class="amount">$4,587.00</div>
+                        <div class="trend positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>23.4%</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="transaction-amount expense">-$150.00</div>
-            </div>
-            <div class="transaction-item">
-                <div class="transaction-details">
-                    <div class="transaction-description">Rent</div>
-                    <div class="transaction-date">2024-03-03</div>
+            </section>
+
+            <section class="charts-section">
+                <div class="card chart-card">
+                    <div class="chart-header">
+                        <h2 class="chart-title">Income vs Expenses</h2>
+                        <div class="chart-actions">
+                            <button class="chart-button active">Week</button>
+                            <button class="chart-button">Month</button>
+                            <button class="chart-button">Year</button>
+                        </div>
+                    </div>
+                    <canvas id="incomeExpenseChart"></canvas>
                 </div>
-                <div class="transaction-amount expense">-$1,200.00</div>
-            </div>
-        </div>
+
+                <div class="card chart-card">
+                    <div class="chart-header">
+                        <h2 class="chart-title">Recent Transactions</h2>
+                    </div>
+                    <ul class="transactions-list">
+                        <li class="transaction-item">
+                            <div class="transaction-icon" style="background: rgba(0, 184, 148, 0.1); color: var(--income-color);">
+                                <i class="fas fa-arrow-up"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <div class="transaction-title">Salary Deposit</div>
+                                <div class="transaction-date">Today, 12:45 PM</div>
+                            </div>
+                            <div class="transaction-amount amount-income">+$3,500.00</div>
+                        </li>
+                        <li class="transaction-item">
+                            <div class="transaction-icon" style="background: rgba(255, 118, 117, 0.1); color: var(--expense-color);">
+                                <i class="fas fa-arrow-down"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <div class="transaction-title">Grocery Shopping</div>
+                                <div class="transaction-date">Yesterday, 4:30 PM</div>
+                            </div>
+                            <div class="transaction-amount amount-expense">-$125.50</div>
+                        </li>
+                        <li class="transaction-item">
+                            <div class="transaction-icon" style="background: rgba(255, 118, 117, 0.1); color: var(--expense-color);">
+                                <i class="fas fa-arrow-down"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <div class="transaction-title">Utility Bill</div>
+                                <div class="transaction-date">Mar 28, 2024</div>
+                            </div>
+                            <div class="transaction-amount amount-expense">-$85.00</div>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+        </main>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
     <script>
-        // Theme handling
+        // Theme Toggle Functionality
+        const themeToggle = document.querySelector('.theme-toggle');
+        const slider = themeToggle.querySelector('.slider');
+        const body = document.body;
+        
         function setTheme(theme) {
-            document.documentElement.setAttribute('data-theme', theme);
+            body.setAttribute('data-theme', theme);
             localStorage.setItem('theme', theme);
+            
+            if (theme === 'dark') {
+                slider.innerHTML = '<i class="fas fa-moon"></i>';
+                updateChartColors('dark');
+            } else {
+                slider.innerHTML = '<i class="fas fa-sun"></i>';
+                updateChartColors('light');
+            }
         }
-
-        function toggleTheme() {
-            const currentTheme = localStorage.getItem('theme') || 'light';
+        
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = body.getAttribute('data-theme') || 'light';
             const newTheme = currentTheme === 'light' ? 'dark' : 'light';
             setTheme(newTheme);
-        }
-
-        // Initialize theme
+        });
+        
+        // Set initial theme
         const savedTheme = localStorage.getItem('theme') || 'light';
         setTheme(savedTheme);
 
-        // Form handling
-        const transactionForm = document.getElementById('transactionForm');
-        
-        transactionForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = {
-                description: document.getElementById('description').value,
-                amount: parseFloat(document.getElementById('amount').value),
-                type: document.getElementById('type').value,
-                category: document.getElementById('category').value
-            };
+        // Chart Configuration
+        const ctx = document.getElementById('incomeExpenseChart').getContext('2d');
+        let incomeExpenseChart;
 
-            try {
-                const response = await fetch('/api/transactions', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData)
-                });
+        function createChart(theme) {
+            const gridColor = theme === 'dark' ? '#404756' : '#f1f3f5';
+            const textColor = theme === 'dark' ? '#b2bec3' : '#636e72';
 
-                if (response.ok) {
-                    // Refresh the page to show new transaction
-                    window.location.reload();
-                } else {
-                    console.error('Failed to add transaction');
-                }
-            } catch (error) {
-                console.error('Error:', error);
+            if (incomeExpenseChart) {
+                incomeExpenseChart.destroy();
             }
+
+            incomeExpenseChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Income',
+                        data: [1500, 2100, 1800, 2300, 1900, 2500, 2000],
+                        borderColor: '#00b894',
+                        backgroundColor: 'rgba(0, 184, 148, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'Expenses',
+                        data: [900, 1200, 800, 1100, 1300, 950, 1000],
+                        borderColor: '#ff7675',
+                        backgroundColor: 'rgba(255, 118, 117, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: textColor,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: gridColor
+                            },
+                            ticks: {
+                                color: textColor
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: gridColor
+                            },
+                            ticks: {
+                                color: textColor
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateChartColors(theme) {
+            createChart(theme);
+        }
+
+        // Initialize chart with current theme
+        createChart(savedTheme);
+
+        // Chart period buttons
+        const chartButtons = document.querySelectorAll('.chart-button');
+        chartButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                chartButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                // Add logic to update chart data based on selected period
+            });
         });
 
-        function logout() {
-            // Clear any session data
-            localStorage.removeItem('token');
-            // Redirect to login page
-            window.location.href = '/login.html';
+        // Fetch user data and update UI
+        async function fetchUserData() {
+            try {
+                const response = await fetch('/api/user/profile');
+                if (response.ok) {
+                    const userData = await response.json();
+                    document.getElementById('userName').textContent = userData.name;
+                    document.querySelector('.user-name').textContent = userData.name;
+                    document.querySelector('.user-email').textContent = userData.email;
+                    document.querySelector('.user-avatar').textContent = userData.name.charAt(0);
+                }
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
         }
+
+        // Initialize user data
+        fetchUserData();
+
+        // Search functionality
+        const searchInput = document.querySelector('.search-bar input');
+        searchInput.addEventListener('input', (e) => {
+            // Add logic to filter transactions based on search input
+            console.log('Searching for:', e.target.value);
+        });
     </script>
 </body>
 </html> 
