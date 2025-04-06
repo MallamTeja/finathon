@@ -1992,6 +1992,17 @@
         document.querySelector('.nav-button[onclick="showSection(\'savings\')"]').addEventListener('click', () => {
             setTimeout(loadSavingsGoals, 300);
         });
+
+        // Update navigation links
+        document.querySelectorAll('.nav-button').forEach(button => {
+            button.onclick = function() {
+                const section = this.getAttribute('data-section');
+                window.location.href = `/${section}`;
+            };
+        });
+
+        // Update API endpoints
+        const API_BASE_URL = 'https://fintrack-git-main-mallamtejas-projects.vercel.app/api';
     </script>
 </body>
 </html> 

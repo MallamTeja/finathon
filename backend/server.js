@@ -1,10 +1,11 @@
+require('dotenv').config();
 const express = require('express');
+const mongoose = require('mongoose');
 const cors = require('cors');
-const dotenv = require('dotenv');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { connectDB, User, Transaction, SavingsGoal } = require('./db');
+const { User, Transaction, SavingsGoal } = require('./db');
 const authRoutes = require('./routes/auth');
 const transactionRoutes = require('./routes/transaction');
 const budgetRoutes = require('./routes/budget');
@@ -13,7 +14,6 @@ const savingsRoutes = require('./routes/savings');
 console.log('Starting server...');
 
 // Load environment variables
-dotenv.config();
 console.log('Environment variables loaded');
 
 const app = express();
@@ -21,25 +21,30 @@ console.log('Express app created');
 
 // Middleware
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: '*',  // Allow all origins in development
     credentials: true
 }));
 app.use(express.json());
 
-// Serve static files from frontend
+// Serve static files from frontend/public directory
 app.use(express.static(path.join(__dirname, '../frontend/public')));
 
 // Connect to MongoDB
-connectDB().catch(err => {
-    console.error('MongoDB connection error:', err);
-    process.exit(1);
-});
+mongoose.connect(process.env.MONGODB_URI)
+    .then(() => console.log('MongoDB connected successfully'))
+    .catch(err => console.error('MongoDB connection error:', err));
 
 // Add error handler for MongoDB connection
 process.on('unhandledRejection', (err) => {
     console.error('Unhandled Rejection:', err);
     process.exit(1);
 });
+
+// API Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/transactions', transactionRoutes);
+app.use('/api/budgets', budgetRoutes);
+app.use('/api/savings-goals', savingsRoutes);
 
 // Root API route
 app.get('/api', (req, res) => {
@@ -266,19 +271,28 @@ app.put('/api/savings-goals/:id', authMiddleware, async (req, res) => {
     }
 });
 
-// Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/transactions', transactionRoutes);
-app.use('/api/budgets', budgetRoutes);
-app.use('/api/savings-goals', savingsRoutes);
-
-// Handle 404 for API routes
-app.use('/api/*', (req, res) => {
-  return res.status(404).json({
-    success: false,
-    error: 'Not Found',
-    message: 'API endpoint not found'
-  });
+// Handle all other routes by serving index.html
+app.get('*', (req, res) => {
+    // Don't serve index.html for API routes
+    if (req.path.startsWith('/api')) {
+        return res.status(404).json({
+            success: false,
+            error: 'Not Found',
+            message: 'API endpoint not found'
+        });
+    }
+    
+    // For all other routes, serve the appropriate HTML file
+    const requestPath = req.path.toLowerCase();
+    if (requestPath === '/login') {
+        res.sendFile(path.join(__dirname, '../frontend/public/login.html'));
+    } else if (requestPath === '/register') {
+        res.sendFile(path.join(__dirname, '../frontend/public/register.html'));
+    } else if (requestPath === '/dashboard' || requestPath === '/mainpage') {
+        res.sendFile(path.join(__dirname, '../frontend/public/mainpage.html'));
+    } else {
+        res.sendFile(path.join(__dirname, '../frontend/public/login.html'));
+    }
 });
 
 // Error handling middleware
@@ -287,15 +301,11 @@ app.use((err, req, res, next) => {
     res.status(500).json({ message: 'Something went wrong!' });
 });
 
-// Update the server start code
 const PORT = process.env.PORT || 5000;
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/fintrack';
-
-if (process.env.NODE_ENV !== 'production') {
-    app.listen(PORT, () => {
-        console.log(`Server is running on port ${PORT}`);
-        console.log(`API available at: http://localhost:${PORT}/api`);
-    });
-}
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+    console.log(`Frontend available at: http://localhost:${PORT}`);
+    console.log(`API available at: http://localhost:${PORT}/api`);
+});
 
 module.exports = app; 

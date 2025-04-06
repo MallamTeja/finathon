@@ -16,7 +16,7 @@ const connectDB = async () => {
     }
 };
 
-// Define User Schema
+// User Schema
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -30,45 +30,40 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true
-    },
-    created_at: {
-        type: Date,
-        default: Date.now
     }
-});
+}, { timestamps: true });
 
-// Define Transaction Schema
+// Transaction Schema
 const transactionSchema = new mongoose.Schema({
-    user_id: {
+    user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
+        required: true
+    },
+    type: {
+        type: String,
+        required: true,
+        enum: ['income', 'expense']
+    },
+    category: {
+        type: String,
         required: true
     },
     amount: {
         type: Number,
         required: true
     },
-    type: {
-        type: String,
-        enum: ['income', 'expense'],
-        required: true
-    },
-    category: {
+    description: {
         type: String,
         required: true
     },
-    description: String,
     date: {
-        type: Date,
-        required: true
-    },
-    created_at: {
         type: Date,
         default: Date.now
     }
-});
+}, { timestamps: true });
 
-// Define Savings Goal Schema
+// Savings Goal Schema
 const savingsGoalSchema = new mongoose.Schema({
     user_id: {
         type: mongoose.Schema.Types.ObjectId,
@@ -94,13 +89,10 @@ const savingsGoalSchema = new mongoose.Schema({
     due_date: {
         type: Date,
         required: true
-    },
-    created_at: {
-        type: Date,
-        default: Date.now
     }
-});
+}, { timestamps: true });
 
+// Create models
 const User = mongoose.model('User', userSchema);
 const Transaction = mongoose.model('Transaction', transactionSchema);
 const SavingsGoal = mongoose.model('SavingsGoal', savingsGoalSchema);

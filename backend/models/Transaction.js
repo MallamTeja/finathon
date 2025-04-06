@@ -1,27 +1,29 @@
 const mongoose = require('mongoose');
 
 const transactionSchema = new mongoose.Schema({
-    user: {
+    userId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+        required: true,
+        ref: 'User'
     },
-    type: {
+    description: {
         type: String,
         required: true,
-        enum: ['income', 'expense']
-    },
-    category: {
-        type: String,
-        required: true
+        trim: true
     },
     amount: {
         type: Number,
         required: true
     },
-    description: {
+    category: {
         type: String,
-        required: true
+        required: true,
+        trim: true
+    },
+    type: {
+        type: String,
+        required: true,
+        enum: ['income', 'expense']
     },
     date: {
         type: Date,
@@ -31,4 +33,7 @@ const transactionSchema = new mongoose.Schema({
     timestamps: true
 });
 
-module.exports = mongoose.model('Transaction', transactionSchema); 
+// Check if model exists before creating it
+const Transaction = mongoose.models.Transaction || mongoose.model('Transaction', transactionSchema);
+
+module.exports = Transaction; 
