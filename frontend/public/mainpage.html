@@ -247,6 +247,242 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        .transaction-form-container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 1.5rem;
+            background: var(--bg);
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transform: translateY(20px);
+            opacity: 0;
+            animation: slideUp 0.5s ease forwards;
+        }
+
+        .transaction-form-container h1 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--text);
+            text-align: center;
+            position: relative;
+            padding-bottom: 0.75rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.25rem;
+            color: var(--text);
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+
+        .type-switcher {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            background: var(--bg);
+            padding: 0.375rem;
+            border-radius: 8px;
+            border: 2px solid var(--border);
+        }
+
+        .type-btn {
+            flex: 1;
+            padding: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .type-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--primary);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+
+        .type-btn.active {
+            color: white;
+            transform: scale(1.02);
+        }
+
+        .type-btn.active::before {
+            opacity: 1;
+        }
+
+        .quick-amounts {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .quick-amount-btn {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.75rem;
+        }
+
+        .primary-btn {
+            padding: 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        .primary-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2);
+        }
+
+        .primary-btn:hover::after {
+            transform: translateX(100%);
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Dark theme specific styles */
+        [data-theme="dark"] .transaction-form-container {
+            background: #1f2937;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        [data-theme="dark"] .form-group input,
+        [data-theme="dark"] .form-group select,
+        [data-theme="dark"] .form-group textarea {
+            background: #374151;
+            border-color: #4b5563;
+        }
+
+        [data-theme="dark"] .type-switcher {
+            background: #374151;
+            border-color: #4b5563;
+        }
+
+        [data-theme="dark"] .quick-amount-btn {
+            border-color: #4b5563;
+        }
+
+        [data-theme="dark"] .primary-btn {
+            background: var(--primary);
+            color: #111827;
+        }
+
+        /* Recent Transactions Section */
+        .recent-transactions {
+            margin-top: 2rem;
+            background: var(--bg);
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .recent-transactions h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.875rem;
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .transaction-category {
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .transaction-date {
+            font-size: 0.75rem;
+            color: var(--text);
+            opacity: 0.7;
+        }
+
+        .transaction-amount {
+            font-weight: 600;
+        }
+
+        .transaction-amount.positive {
+            color: var(--success);
+        }
+
+        .transaction-amount.negative {
+            color: var(--danger);
+        }
     </style>
 </head>
 <body>
@@ -267,6 +503,10 @@
             <button class="nav-button active" onclick="showSection('dashboard')">
                 <i class="fas fa-home"></i>
                 Dashboard
+            </button>
+            <button class="nav-button" onclick="showSection('add-transaction')">
+                <i class="fas fa-plus-circle"></i>
+                Add Transaction
             </button>
             <button class="nav-button" onclick="showSection('savings')">
                 <i class="fas fa-bullseye"></i>
@@ -390,6 +630,77 @@
                 </div>
             </div>
         </div>
+
+        <!-- Add Transaction Section -->
+        <div class="section" id="add-transaction">
+            <div class="transaction-form-container">
+                <h1>Add New Transaction</h1>
+                <form id="transactionForm">
+                    <!-- Transaction Type Switcher -->
+                    <div class="form-group">
+                        <label>Transaction Type</label>
+                        <div class="type-switcher">
+                            <button type="button" class="type-btn active" data-type="expense">Expense</button>
+                            <button type="button" class="type-btn" data-type="income">Income</button>
+                        </div>
+                    </div>
+
+                    <!-- Category Dropdown -->
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <select id="category" required>
+                            <option value="">Select Category</option>
+                            <!-- Expense Categories -->
+                            <option value="food" class="expense-option">Food</option>
+                            <option value="travel" class="expense-option">Travel</option>
+                            <option value="medical" class="expense-option">Medical</option>
+                            <option value="bills" class="expense-option">Bills</option>
+                            <option value="other" class="expense-option">Other</option>
+                            <!-- Income Categories -->
+                            <option value="salary" class="income-option" style="display: none;">Salary</option>
+                            <option value="bonus" class="income-option" style="display: none;">Bonus</option>
+                            <option value="investment" class="income-option" style="display: none;">Investment</option>
+                            <option value="freelance" class="income-option" style="display: none;">Freelance</option>
+                        </select>
+                        <input type="text" id="customCategory" placeholder="Enter custom category" style="display: none;">
+                    </div>
+
+                    <!-- Amount Field -->
+                    <div class="form-group">
+                        <label for="amount">Amount (₹)</label>
+                        <input type="number" id="amount" min="0" step="0.01" required>
+                        <div class="quick-amounts">
+                            <button type="button" class="quick-amount-btn" data-amount="100">₹100</button>
+                            <button type="button" class="quick-amount-btn" data-amount="500">₹500</button>
+                            <button type="button" class="quick-amount-btn" data-amount="1000">₹1000</button>
+                            <button type="button" class="quick-amount-btn" data-amount="5000">₹5000</button>
+                        </div>
+                    </div>
+
+                    <!-- Date Picker -->
+                    <div class="form-group">
+                        <label for="date">Date</label>
+                        <input type="date" id="date" required>
+                    </div>
+
+                    <!-- Notes Field -->
+                    <div class="form-group">
+                        <label for="notes">Notes (Optional)</label>
+                        <textarea id="notes" rows="3"></textarea>
+                    </div>
+
+                    <button type="submit" class="primary-btn">Add Transaction</button>
+                </form>
+            </div>
+
+            <!-- Recent Transactions Section -->
+            <div class="recent-transactions">
+                <h2>Recent Transactions</h2>
+                <div id="recentTransactionsList">
+                    <!-- Transactions will be populated here -->
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -440,6 +751,161 @@
             // Add active class to clicked button
             event.currentTarget.classList.add('active');
         }
+
+        // Transaction Form Handling
+        const transactionForm = document.getElementById('transactionForm');
+        const typeButtons = document.querySelectorAll('.type-btn');
+        const categorySelect = document.getElementById('category');
+        const customCategoryInput = document.getElementById('customCategory');
+        const amountInput = document.getElementById('amount');
+        const quickAmountButtons = document.querySelectorAll('.quick-amount-btn');
+        const dateInput = document.getElementById('date');
+        const notesInput = document.getElementById('notes');
+
+        // Set default date to today
+        dateInput.valueAsDate = new Date();
+
+        // Type switcher functionality
+        typeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                typeButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                
+                // Show/hide relevant categories
+                const type = button.dataset.type;
+                document.querySelectorAll('.expense-option').forEach(opt => {
+                    opt.style.display = type === 'expense' ? '' : 'none';
+                });
+                document.querySelectorAll('.income-option').forEach(opt => {
+                    opt.style.display = type === 'income' ? '' : 'none';
+                });
+                
+                // Reset category selection
+                categorySelect.value = '';
+                customCategoryInput.style.display = 'none';
+            });
+        });
+
+        // Custom category handling
+        categorySelect.addEventListener('change', () => {
+            customCategoryInput.style.display = categorySelect.value === 'other' ? 'block' : 'none';
+        });
+
+        // Quick amount buttons
+        quickAmountButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                amountInput.value = button.dataset.amount;
+            });
+        });
+
+        // Form submission
+        transactionForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const type = document.querySelector('.type-btn.active').dataset.type;
+            const category = categorySelect.value === 'other' 
+                ? customCategoryInput.value 
+                : categorySelect.value;
+            const amount = parseFloat(amountInput.value);
+            const date = dateInput.value;
+            const notes = notesInput.value;
+
+            // Validation
+            if (!category || !amount || !date) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:5000/api/transactions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({
+                        type,
+                        category,
+                        amount,
+                        date,
+                        notes
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to add transaction');
+                }
+
+                // Clear form
+                transactionForm.reset();
+                dateInput.valueAsDate = new Date();
+                customCategoryInput.style.display = 'none';
+                
+                // Show success message
+                alert('Transaction added successfully!');
+                
+                // Optionally redirect to dashboard
+                showSection('dashboard');
+
+                // Reload recent transactions
+                await loadRecentTransactions();
+            } catch (error) {
+                alert('Error adding transaction: ' + error.message);
+            }
+        });
+
+        // Add this to your existing JavaScript
+        async function loadRecentTransactions() {
+            try {
+                const response = await fetch('http://localhost:5000/api/transactions', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch transactions');
+                }
+
+                const transactions = await response.json();
+                const recentTransactionsList = document.getElementById('recentTransactionsList');
+                recentTransactionsList.innerHTML = '';
+
+                // Show only the 5 most recent transactions
+                transactions.slice(0, 5).forEach(transaction => {
+                    const transactionItem = document.createElement('div');
+                    transactionItem.className = 'transaction-item';
+                    
+                    const details = document.createElement('div');
+                    details.className = 'transaction-details';
+                    
+                    const category = document.createElement('div');
+                    category.className = 'transaction-category';
+                    category.textContent = transaction.category;
+                    
+                    const date = document.createElement('div');
+                    date.className = 'transaction-date';
+                    date.textContent = new Date(transaction.date).toLocaleDateString();
+                    
+                    const amount = document.createElement('div');
+                    amount.className = `transaction-amount ${transaction.type}`;
+                    amount.textContent = `${transaction.type === 'income' ? '+' : '-'}₹${transaction.amount}`;
+                    
+                    details.appendChild(category);
+                    details.appendChild(date);
+                    transactionItem.appendChild(details);
+                    transactionItem.appendChild(amount);
+                    recentTransactionsList.appendChild(transactionItem);
+                });
+            } catch (error) {
+                console.error('Error loading transactions:', error);
+            }
+        }
+
+        // Call loadRecentTransactions when the add-transaction section is shown
+        document.querySelector('.nav-button[onclick="showSection(\'add-transaction\')"]').addEventListener('click', () => {
+            setTimeout(loadRecentTransactions, 300); // Wait for animation to complete
+        });
     </script>
 </body>
 </html>
