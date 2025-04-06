@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theme Toggle Options</title>
+    <style>
+        :root {
+            --bg-color: #f4f4f4;
+            --text-color: #333;
+            --card-bg: white;
+            --header-bg: #007bff;
+            --button-bg: #007bff;
+            --button-hover: #0056b3;
+            --shadow-color: rgba(0,0,0,0.1);
+            --input-border: #ddd;
+            --input-focus: #007bff;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --text-color: #f4f4f4;
+            --card-bg: #2d2d2d;
+            --header-bg: #1a1a1a;
+            --button-bg: #007bff;
+            --button-hover: #0056b3;
+            --shadow-color: rgba(0,0,0,0.3);
+            --input-border: #444;
+            --input-focus: #007bff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--text-color);
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .option-card {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px var(--shadow-color);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .option-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px var(--shadow-color);
+        }
+
+        h2 {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        /* Option 1: Classic Slider */
+        .option-1 .theme-toggle {
+            width: 80px;
+            height: 40px;
+            background: var(--input-border);
+            border-radius: 20px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option-1 .slider {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--text-color);
+            left: 5px;
+            top: 5px;
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] .option-1 .slider {
+            left: 45px;
+        }
+
+        /* Option 2: Minimal Switch */
+        .option-2 .theme-toggle {
+            width: 60px;
+            height: 30px;
+            background: var(--input-border);
+            border-radius: 15px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .option-2 .slider {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--text-color);
+            left: 3px;
+            top: 3px;
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] .option-2 .slider {
+            left: 33px;
+        }
+
+        /* Option 3: Modern Toggle */
+        .option-3 .theme-toggle {
+            width: 70px;
+            height: 35px;
+            background: var(--input-border);
+            border-radius: 17.5px;
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding: 0 5px;
+        }
+
+        .option-3 .slider {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] .option-3 .slider {
+            margin-left: 35px;
+        }
+
+        /* Option 4: Elegant Switch */
+        .option-4 .theme-toggle {
+            width: 90px;
+            height: 40px;
+            background: var(--input-border);
+            border-radius: 20px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option-4 .slider {
+            position: absolute;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--text-color);
+            left: 2px;
+            top: 2px;
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] .option-4 .slider {
+            left: 52px;
+        }
+
+        /* Option 5: Compact Toggle */
+        .option-5 .theme-toggle {
+            width: 50px;
+            height: 25px;
+            background: var(--input-border);
+            border-radius: 12.5px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .option-5 .slider {
+            position: absolute;
+            width: 21px;
+            height: 21px;
+            border-radius: 50%;
+            background: var(--text-color);
+            left: 2px;
+            top: 2px;
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] .option-5 .slider {
+            left: 27px;
+        }
+
+        /* Option 6: Rounded Switch */
+        .option-6 .theme-toggle {
+            width: 85px;
+            height: 42px;
+            background: var(--input-border);
+            border-radius: 21px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .option-6 .slider {
+            position: absolute;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--text-color);
+            left: 4px;
+            top: 4px;
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] .option-6 .slider {
+            left: 47px;
+        }
+
+        /* Option 7: Sleek Toggle */
+        .option-7 .theme-toggle {
+            width: 75px;
+            height: 38px;
+            background: var(--input-border);
+            border-radius: 19px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .option-7 .slider {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--text-color);
+            left: 4px;
+            top: 4px;
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] .option-7 .slider {
+            left: 41px;
+        }
+
+        /* Option 8: Modern Switch */
+        .option-8 .theme-toggle {
+            width: 65px;
+            height: 32px;
+            background: var(--input-border);
+            border-radius: 16px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .option-8 .slider {
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: var(--text-color);
+            left: 3px;
+            top: 3px;
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] .option-8 .slider {
+            left: 36px;
+        }
+
+        /* Option 9: Elegant Toggle */
+        .option-9 .theme-toggle {
+            width: 95px;
+            height: 45px;
+            background: var(--input-border);
+            border-radius: 22.5px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .option-9 .slider {
+            position: absolute;
+            width: 37px;
+            height: 37px;
+            border-radius: 50%;
+            background: var(--text-color);
+            left: 4px;
+            top: 4px;
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] .option-9 .slider {
+            left: 54px;
+        }
+
+        /* Option 10: Compact Switch */
+        .option-10 .theme-toggle {
+            width: 55px;
+            height: 28px;
+            background: var(--input-border);
+            border-radius: 14px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .option-10 .slider {
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--text-color);
+            left: 3px;
+            top: 3px;
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] .option-10 .slider {
+            left: 30px;
+        }
+
+        /* Common styles for all options */
+        .theme-toggle {
+            margin: 1rem 0;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.05);
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.95);
+        }
+
+        .description {
+            margin-top: 1rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Theme Toggle Options</h1>
+        <div class="options-grid">
+            <div class="option-card option-1">
+                <h2>Classic Slider</h2>
+                <button class="theme-toggle" onclick="toggleTheme(this)">
+                    <div class="slider"></div>
+                </button>
+                <p class="description">A classic slider design with smooth transitions</p>
+            </div>
+
+            <div class="option-card option-2">
+                <h2>Minimal Switch</h2>
+                <button class="theme-toggle" onclick="toggleTheme(this)">
+                    <div class="slider"></div>
+                </button>
+                <p class="description">Clean and minimal design for a subtle look</p>
+            </div>
+
+            <div class="option-card option-3">
+                <h2>Modern Toggle</h2>
+                <button class="theme-toggle" onclick="toggleTheme(this)">
+                    <div class="slider"></div>
+                </button>
+                <p class="description">Contemporary design with smooth animations</p>
+            </div>
+
+            <div class="option-card option-4">
+                <h2>Elegant Switch</h2>
+                <button class="theme-toggle" onclick="toggleTheme(this)">
+                    <div class="slider"></div>
+                </button>
+                <p class="description">Sophisticated design with elegant transitions</p>
+            </div>
+
+            <div class="option-card option-5">
+                <h2>Compact Toggle</h2>
+                <button class="theme-toggle" onclick="toggleTheme(this)">
+                    <div class="slider"></div>
+                </button>
+                <p class="description">Space-saving design for compact interfaces</p>
+            </div>
+
+            <div class="option-card option-6">
+                <h2>Rounded Switch</h2>
+                <button class="theme-toggle" onclick="toggleTheme(this)">
+                    <div class="slider"></div>
+                </button>
+                <p class="description">Soft rounded corners for a friendly look</p>
+            </div>
+
+            <div class="option-card option-7">
+                <h2>Sleek Toggle</h2>
+                <button class="theme-toggle" onclick="toggleTheme(this)">
+                    <div class="slider"></div>
+                </button>
+                <p class="description">Sleek and modern design with smooth motion</p>
+            </div>
+
+            <div class="option-card option-8">
+                <h2>Modern Switch</h2>
+                <button class="theme-toggle" onclick="toggleTheme(this)">
+                    <div class="slider"></div>
+                </button>
+                <p class="description">Contemporary design with clean lines</p>
+            </div>
+
+            <div class="option-card option-9">
+                <h2>Elegant Toggle</h2>
+                <button class="theme-toggle" onclick="toggleTheme(this)">
+                    <div class="slider"></div>
+                </button>
+                <p class="description">Refined design with graceful transitions</p>
+            </div>
+
+            <div class="option-card option-10">
+                <h2>Compact Switch</h2>
+                <button class="theme-toggle" onclick="toggleTheme(this)">
+                    <div class="slider"></div>
+                </button>
+                <p class="description">Efficient design for space-conscious layouts</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleTheme(button) {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
+</body>
+</html> 
