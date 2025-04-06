@@ -3,7 +3,8 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
 const bcrypt = require('bcryptjs');
-const { pool, initializeDatabase } = require('./db');
+const jwt = require('jsonwebtoken');
+const { connectDB, User, Transaction, SavingsGoal } = require('./db');
 
 console.log('Starting server...');
 
@@ -15,199 +16,249 @@ const app = express();
 console.log('Express app created');
 
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true
+}));
 app.use(express.json());
 
 // Serve static files from frontend
 app.use(express.static(path.join(__dirname, '../frontend/public')));
 
-// Initialize database
-initializeDatabase().catch(console.error);
+// Connect to MongoDB
+connectDB().catch(err => {
+    console.error('MongoDB connection error:', err);
+    process.exit(1);
+});
 
-// API Routes
+// Add error handler for MongoDB connection
+process.on('unhandledRejection', (err) => {
+    console.error('Unhandled Rejection:', err);
+    process.exit(1);
+});
+
+// Root API route
+app.get('/api', (req, res) => {
+    res.json({
+        message: 'Welcome to FinTrack API',
+        endpoints: {
+            auth: {
+                register: 'POST /api/auth/register',
+                login: 'POST /api/auth/login'
+            },
+            transactions: {
+                list: 'GET /api/transactions',
+                create: 'POST /api/transactions'
+            },
+            savingsGoals: {
+                list: 'GET /api/savings-goals',
+                create: 'POST /api/savings-goals',
+                update: 'PUT /api/savings-goals/:id'
+            }
+        }
+    });
+});
+
+// Auth middleware
+const authMiddleware = async (req, res, next) => {
+    try {
+        const token = req.header('Authorization')?.replace('Bearer ', '');
+        if (!token) {
+            return res.status(401).json({ message: 'Authentication required' });
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findById(decoded.userId);
+        
+        if (!user) {
+            return res.status(401).json({ message: 'User not found' });
+        }
+
+        req.user = user;
+        next();
+    } catch (error) {
+        res.status(401).json({ message: 'Invalid token' });
+    }
+};
+
+// Auth Routes
 app.post('/api/auth/register', async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
-    
-    if (!name || !email || !password) {
-      return res.status(400).json({
-        success: false,
-        error: 'Missing fields',
-        message: 'Please provide name, email, and password'
-      });
+    try {
+        const { name, email, password } = req.body;
+
+        if (!name || !email || !password) {
+            return res.status(400).json({ message: 'All fields are required' });
+        }
+
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ message: 'Email already registered' });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const user = await User.create({
+            name,
+            email,
+            password: hashedPassword
+        });
+
+        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
+
+        res.status(201).json({
+            token,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email
+            }
+        });
+    } catch (error) {
+        console.error('Registration error:', error);
+        res.status(500).json({ message: 'Server error during registration' });
     }
-
-    console.log('Registration attempt:', email);
-
-    // Check if user already exists
-    const [existingUsers] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
-    if (existingUsers.length > 0) {
-      return res.status(400).json({
-        success: false,
-        error: 'User exists',
-        message: 'User with this email already exists'
-      });
-    }
-
-    // Hash password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    // Create user
-    const [result] = await pool.query(
-      'INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
-      [name, email, hashedPassword]
-    );
-
-    return res.status(201).json({ 
-      success: true, 
-      message: 'Registration successful',
-      user: {
-        id: result.insertId,
-        name,
-        email
-      }
-    });
-  } catch (error) {
-    console.error('Registration error:', error);
-    return res.status(500).json({
-      success: false,
-      error: error.message || 'Registration failed',
-      message: 'An error occurred during registration'
-    });
-  }
 });
 
-// Login route
 app.post('/api/auth/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    
-    if (!email || !password) {
-      return res.status(400).json({
-        success: false,
-        error: 'Missing credentials',
-        message: 'Please provide both email and password'
-      });
-    }
-
-    console.log('Login attempt:', email);
-
-    // Find user
-    const [users] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
-    if (users.length === 0) {
-      return res.status(401).json({
-        success: false,
-        error: 'Invalid credentials',
-        message: 'Invalid email or password'
-      });
-    }
-
-    const user = users[0];
-
-    // Check password
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({
-        success: false,
-        error: 'Invalid credentials',
-        message: 'Invalid email or password'
-      });
-    }
-
-    return res.status(200).json({ 
-      success: true, 
-      message: 'Login successful',
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email
-      }
-    });
-  } catch (error) {
-    console.error('Login error:', error);
-    return res.status(500).json({
-      success: false,
-      error: error.message || 'Login failed',
-      message: 'An error occurred during login'
-    });
-  }
-});
-
-// Transactions API
-app.get('/api/transactions', async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT * FROM transactions ORDER BY date DESC');
-        res.json(rows);
+        const { email, password } = req.body;
+
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Email and password are required' });
+        }
+
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+
+        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
+
+        res.json({
+            token,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email
+            }
+        });
     } catch (error) {
-        res.status(500).json({ error: 'Error fetching transactions' });
+        console.error('Login error:', error);
+        res.status(500).json({ message: 'Server error during login' });
     }
 });
 
-app.post('/api/transactions', async (req, res) => {
+// Transaction Routes
+app.get('/api/transactions', authMiddleware, async (req, res) => {
     try {
-        const { title, description, amount, type, category, date } = req.body;
-        const [result] = await pool.query(
-            'INSERT INTO transactions (title, description, amount, type, category, date) VALUES (?, ?, ?, ?, ?, ?)',
-            [title, description, amount, type, category, date]
-        );
-        res.json({ id: result.insertId, ...req.body });
+        const transactions = await Transaction.find({ user: req.user._id }).sort({ date: -1 });
+        res.json(transactions);
     } catch (error) {
-        res.status(500).json({ error: 'Error creating transaction' });
+        console.error('Error fetching transactions:', error);
+        res.status(500).json({ message: 'Error fetching transactions' });
     }
 });
 
-app.delete('/api/transactions/:id', async (req, res) => {
+app.post('/api/transactions', authMiddleware, async (req, res) => {
     try {
-        await pool.query('DELETE FROM transactions WHERE id = ?', [req.params.id]);
-        res.json({ message: 'Transaction deleted successfully' });
+        const { type, category, amount, description } = req.body;
+
+        if (!type || !category || !amount || !description) {
+            return res.status(400).json({ message: 'All fields are required' });
+        }
+
+        const transaction = await Transaction.create({
+            user: req.user._id,
+            type,
+            category,
+            amount,
+            description
+        });
+
+        res.status(201).json(transaction);
     } catch (error) {
-        res.status(500).json({ error: 'Error deleting transaction' });
+        console.error('Error creating transaction:', error);
+        res.status(500).json({ message: 'Error creating transaction' });
     }
 });
 
-// Savings Goals API
-app.get('/api/savings-goals', async (req, res) => {
+// Savings Goals Routes
+app.get('/api/savings-goals', authMiddleware, async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT * FROM savings_goals ORDER BY due_date ASC');
-        res.json(rows);
+        const goals = await SavingsGoal.find({ user_id: req.user._id })
+            .sort({ due_date: 1 });
+        res.json({
+            success: true,
+            goals
+        });
     } catch (error) {
-        res.status(500).json({ error: 'Error fetching savings goals' });
+        console.error('Error fetching savings goals:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Server error',
+            message: 'Error fetching savings goals'
+        });
     }
 });
 
-app.post('/api/savings-goals', async (req, res) => {
+app.post('/api/savings-goals', authMiddleware, async (req, res) => {
     try {
         const { title, target_amount, category, due_date } = req.body;
-        const [result] = await pool.query(
-            'INSERT INTO savings_goals (title, target_amount, category, due_date) VALUES (?, ?, ?, ?)',
-            [title, target_amount, category, due_date]
-        );
-        res.json({ id: result.insertId, ...req.body, current_amount: 0 });
+        
+        const goal = await SavingsGoal.create({
+            user_id: req.user._id,
+            title,
+            target_amount,
+            category,
+            due_date: new Date(due_date)
+        });
+
+        res.status(201).json({
+            success: true,
+            goal
+        });
     } catch (error) {
-        res.status(500).json({ error: 'Error creating savings goal' });
+        console.error('Error creating savings goal:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Server error',
+            message: 'Error creating savings goal'
+        });
     }
 });
 
-app.put('/api/savings-goals/:id', async (req, res) => {
+app.put('/api/savings-goals/:id', authMiddleware, async (req, res) => {
     try {
         const { current_amount } = req.body;
-        await pool.query(
-            'UPDATE savings_goals SET current_amount = ? WHERE id = ?',
-            [current_amount, req.params.id]
+        const goal = await SavingsGoal.findOneAndUpdate(
+            { _id: req.params.id, user_id: req.user._id },
+            { current_amount },
+            { new: true }
         );
-        res.json({ message: 'Savings goal updated successfully' });
-    } catch (error) {
-        res.status(500).json({ error: 'Error updating savings goal' });
-    }
-});
 
-app.delete('/api/savings-goals/:id', async (req, res) => {
-    try {
-        await pool.query('DELETE FROM savings_goals WHERE id = ?', [req.params.id]);
-        res.json({ message: 'Savings goal deleted successfully' });
+        if (!goal) {
+            return res.status(404).json({
+                success: false,
+                error: 'Not found',
+                message: 'Savings goal not found'
+            });
+        }
+
+        res.json({
+            success: true,
+            goal
+        });
     } catch (error) {
-        res.status(500).json({ error: 'Error deleting savings goal' });
+        console.error('Error updating savings goal:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Server error',
+            message: 'Error updating savings goal'
+        });
     }
 });
 
@@ -222,19 +273,15 @@ app.use('/api/*', (req, res) => {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error('Error occurred:', err.stack);
-  return res.status(500).json({ 
-    success: false, 
-    error: err.message || 'Server Error',
-    message: 'An unexpected error occurred'
-  });
+    console.error(err.stack);
+    res.status(500).json({ message: 'Something went wrong!' });
 });
 
 // Start server
 const PORT = process.env.PORT || 5000;
 console.log(`Starting server on port ${PORT}...`);
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server is running on port ${PORT}`);
   console.log(`API available at: http://localhost:${PORT}/api`);
 }); 

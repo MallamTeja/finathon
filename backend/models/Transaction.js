@@ -8,23 +8,20 @@ const transactionSchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ['income', 'expense'],
+        required: true,
+        enum: ['income', 'expense']
+    },
+    category: {
+        type: String,
         required: true
     },
     amount: {
         type: Number,
-        required: true,
-        min: 0
-    },
-    category: {
-        type: String,
-        required: true,
-        enum: ['salary', 'freelance', 'investment', 'food', 'transport', 'entertainment', 'bills', 'shopping', 'other']
+        required: true
     },
     description: {
         type: String,
-        required: true,
-        trim: true
+        required: true
     },
     date: {
         type: Date,

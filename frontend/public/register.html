@@ -250,26 +250,15 @@
                 // Show loading state
                 const submitButton = form.querySelector('button[type="submit"]');
                 submitButton.disabled = true;
-                submitButton.textContent = 'Registering...';
+                submitButton.textContent = 'Creating Account...';
                 
                 const response = await fetch('http://localhost:5000/api/auth/register', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
+                        'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        name: name,
-                        email: email,
-                        password: password
-                    })
+                    body: JSON.stringify({ name, email, password })
                 });
-
-                // Check if the response is JSON
-                const contentType = response.headers.get('content-type');
-                if (!contentType || !contentType.includes('application/json')) {
-                    throw new Error('Server returned non-JSON response');
-                }
                 
                 const data = await response.json();
                 
@@ -277,23 +266,29 @@
                     throw new Error(data.message || 'Registration failed');
                 }
                 
-                if (data.success) {
-                    // Store user data in localStorage
-                    localStorage.setItem('user', JSON.stringify(data.user));
-                    // Redirect to dashboard or home page
-                    window.location.href = '/dashboard.html';
-                } else {
-                    throw new Error(data.message || 'Registration failed');
-                }
+                // Store user data and token
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                
+                // Show success message and redirect
+                submitButton.style.backgroundColor = 'var(--success-color)';
+                submitButton.textContent = 'Account Created! Redirecting...';
+                
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 1500);
             } catch (error) {
                 console.error('Registration error:', error);
-                emailError.textContent = error.message;
-                emailError.style.display = 'block';
-            } finally {
-                // Reset button state
+                const errorMessage = error.message || 'Registration failed';
+                
+                // Show error message
                 const submitButton = form.querySelector('button[type="submit"]');
                 submitButton.disabled = false;
                 submitButton.textContent = 'Register';
+                
+                // Display error in the name error div since it's at the top
+                nameError.textContent = errorMessage;
+                nameError.style.display = 'block';
             }
         });
 
