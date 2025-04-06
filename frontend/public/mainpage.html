@@ -1,0 +1,2605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinTrack - Track Your Money</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #4F46E5;
+            --primary-hover: #4338CA;
+            --secondary-color: #6B7280;
+            --accent-color: #8B5CF6;
+            --danger-color: #EF4444;
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --bg-color: #F3F4F6;
+            --text-color: #111827;
+            --text-muted: #6B7280;
+            --card-bg: #FFFFFF;
+            --border-color: #E5E7EB;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-right: 1px solid var(--border-color);
+            position: fixed;
+            width: 280px;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2.5rem;
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .logo i {
+            color: var(--primary-color);
+            font-size: 1.75rem;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: auto;
+        }
+
+        .nav-footer {
+            margin-top: auto;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--bg-color);
+        }
+
+        .theme-toggle i {
+            font-size: 1.25rem;
+            width: 1.5rem;
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .logout-btn:hover {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .logout-btn i {
+            font-size: 1.25rem;
+            width: 1.5rem;
+        }
+
+        /* Dark mode styles */
+        [data-theme="dark"] {
+            --bg-color: #1F2937;
+            --text-color: #F9FAFB;
+            --text-muted: #9CA3AF;
+            --card-bg: #374151;
+            --border-color: #4B5563;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .nav-link i {
+            font-size: 1.25rem;
+            width: 1.5rem;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem;
+        }
+
+        .header {
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .header p {
+            color: var(--text-muted);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background-color: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .stat-card h3 {
+            color: var(--text-muted);
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stat-card h3 i {
+            color: var(--primary-color);
+        }
+
+        .stat-card .amount {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .change {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .change.positive {
+            color: var(--success-color);
+        }
+
+        .change.negative {
+            color: var(--danger-color);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Additional styles for new elements */
+        .subtitle {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-top: -0.5rem;
+        }
+
+        .search-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            gap: 1rem;
+        }
+
+        .search-input {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-input input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .search-input i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .filters {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .filter-select {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .btn-icon {
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            background: var(--card-bg);
+            color: var(--text-color);
+            cursor: pointer;
+        }
+
+        .transactions-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .transaction-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: var(--card-bg);
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .transaction-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+        }
+
+        .transaction-icon.income {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+
+        .transaction-icon.expense {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+        }
+
+        .transaction-details {
+            flex: 1;
+        }
+
+        .transaction-details h4 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .transaction-details p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .badge.income {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+
+        .badge.housing {
+            background: rgba(79, 70, 229, 0.1);
+            color: var(--primary-color);
+        }
+
+        .badge.food {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+        }
+
+        .transaction-date {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin: 0 1rem;
+        }
+
+        .transaction-amount {
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-align: right;
+            min-width: 100px;
+        }
+
+        .transaction-amount.income {
+            color: var(--success-color);
+        }
+
+        .transaction-amount.expense {
+            color: var(--danger-color);
+        }
+
+        .sidebar-widgets {
+            margin-top: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .widget-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .widget-header h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .view-all {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 0.875rem;
+        }
+
+        .goal-progress {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .progress-bar {
+            height: 0.5rem;
+            background: rgba(79, 70, 229, 0.1);
+            border-radius: 0.25rem;
+            margin: 0.5rem 0 1rem;
+        }
+
+        .progress {
+            height: 100%;
+            background: var(--primary-color);
+            border-radius: 0.25rem;
+        }
+
+        .progress-details {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .progress-details span {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .progress-details strong {
+            display: block;
+            font-size: 1rem;
+            color: var(--text-color);
+        }
+
+        .remaining {
+            margin-bottom: 1rem;
+        }
+
+        .remaining span {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .remaining strong {
+            display: block;
+            font-size: 1rem;
+            color: var(--text-color);
+        }
+
+        .due-date {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .add-funds {
+            width: 100%;
+        }
+
+        .insights-widget {
+            margin-top: 2rem;
+        }
+
+        .insights-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .insight-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .insight-item i {
+            font-size: 1.25rem;
+            color: var(--primary-color);
+        }
+
+        .insight-content h4 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .insight-content p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .savings-container {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 2rem;
+        }
+
+        .main-content-area {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .side-panel {
+            position: sticky;
+            top: 2rem;
+        }
+
+        .savings-goal-card {
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+        }
+
+        .badge.vehicle {
+            background: rgba(79, 70, 229, 0.1);
+            color: var(--primary-color);
+        }
+
+        @media (max-width: 1024px) {
+            .savings-container {
+                grid-template-columns: 1fr;
+            }
+
+            .side-panel {
+                position: static;
+            }
+        }
+
+        /* Add these new styles for the modal and transaction list */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: relative;
+            background-color: var(--card-bg);
+            margin: 10% auto;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .transactions-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background-color: var(--card-bg);
+            border-radius: 0.75rem;
+            overflow: hidden;
+        }
+
+        .transactions-table th,
+        .transactions-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .transactions-table th {
+            background-color: var(--bg-color);
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .transactions-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .transaction-title {
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .transaction-description {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .type-toggle {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .type-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            background: var(--card-bg);
+            color: var(--text-muted);
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .type-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        /* Add these new styles for savings goals */
+        .goals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .goal-card {
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .goal-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .goal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .goal-header h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .badge.emergency {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+        }
+
+        .badge.travel {
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--accent-color);
+        }
+
+        .badge.electronics {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+        }
+
+        .goal-progress {
+            margin: 1rem 0;
+        }
+
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-percent {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .amounts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .amount-box {
+            background: var(--bg-color);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+        }
+
+        .amount-box span {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        .amount-box strong {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .due-date {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 1rem 0;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .suggested-goals {
+            margin-top: 3rem;
+        }
+
+        .suggested-goals h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .suggested-goals p {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .suggestion-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .suggestion-card {
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+        }
+
+        .suggestion-card h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .suggestion-card p {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        /* Add these new styles for insights and charts */
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+        }
+
+        .chart-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-header h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .chart-header p {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 300px;
+            margin-bottom: 1rem;
+        }
+
+        .legend {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+
+        .legend-income { background-color: #10B981; }
+        .legend-expenses { background-color: #EF4444; }
+        .legend-savings { background-color: #6366F1; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .stat-card {
+            background: var(--bg-color);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            text-align: center;
+        }
+
+        .stat-card span {
+            display: block;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card strong {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        /* Dashboard specific styles */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .stat-title {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-change {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.875rem;
+        }
+
+        .stat-change.positive {
+            color: var(--success-color);
+        }
+
+        .stat-change.negative {
+            color: var(--danger-color);
+        }
+
+        .chart-section {
+            grid-column: span 2;
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .chart-container {
+            height: 300px;
+        }
+
+        .transactions-section {
+            grid-column: span 2;
+        }
+
+        .transaction-list {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .transaction-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+        }
+
+        .transaction-icon.income {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+
+        .transaction-icon.expense {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+        }
+
+        .transaction-details {
+            flex: 1;
+        }
+
+        .transaction-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .transaction-category {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .transaction-amount {
+            font-weight: 600;
+        }
+
+        .transaction-amount.income {
+            color: var(--success-color);
+        }
+
+        .transaction-amount.expense {
+            color: var(--danger-color);
+        }
+
+        .insights-section {
+            grid-column: span 2;
+        }
+
+        .insight-card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            margin-bottom: 1rem;
+        }
+
+        .insight-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .insight-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary-light);
+            color: var(--primary-color);
+        }
+
+        .insight-content h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .insight-content p {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        .feedback-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .feedback-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+            background: var(--bg-color);
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .feedback-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        /* Settings styles */
+        .settings-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .settings-nav {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .settings-nav-item {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.2s ease;
+        }
+
+        .settings-nav-item:hover {
+            background: var(--bg-color);
+        }
+
+        .settings-nav-item.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .settings-section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .settings-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .settings-card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            border: 1px solid var(--border-color);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .settings-card h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .settings-card p {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .toggle-group:last-child {
+            border-bottom: none;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--border-color);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: var(--primary-color);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <a href="#" class="logo">
+                <i class="fas fa-wallet"></i>
+                <span>FinTrack</span>
+                <p class="subtitle">Track Your Money</p>
+            </a>
+            <nav class="nav-menu">
+                <a href="#" class="nav-link" data-section="dashboard">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-link active" data-section="transactions">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Transactions</span>
+                </a>
+                <a href="#" class="nav-link" data-section="savings">
+                    <i class="fas fa-piggy-bank"></i>
+                    <span>Savings Goals</span>
+                </a>
+                <a href="#" class="nav-link" data-section="insights">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Insights</span>
+                </a>
+                <a href="#" class="nav-link" data-section="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <div class="nav-footer">
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                    <span>Dark Mode</span>
+                </button>
+                <a href="login.html" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-section" id="dashboard-section">
+                <div class="header">
+                    <div class="header-content">
+                        <h1>Welcome to FinTrack!</h1>
+                        <p>Track Your Money - Financial overview for April 2025</p>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <!-- Stats Cards -->
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-title">Total Balance</div>
+                                <div class="stat-value">$8,550.75</div>
+                                <div class="stat-change positive">
+                                    <i class="fas fa-arrow-up"></i>
+                                    3.2% vs. last month
+                                </div>
+                            </div>
+                            <i class="fas fa-wallet fa-lg" style="color: var(--primary-color)"></i>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-title">Monthly Income</div>
+                                <div class="stat-value">$5,450.00</div>
+                                <div class="stat-change positive">
+                                    <i class="fas fa-arrow-up"></i>
+                                    12% vs last month
+                                </div>
+                            </div>
+                            <i class="fas fa-chart-line fa-lg" style="color: var(--success-color)"></i>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-title">Monthly Expenses</div>
+                                <div class="stat-value">$3,240.50</div>
+                                <div class="stat-change negative">
+                                    <i class="fas fa-arrow-down"></i>
+                                    5% vs last month
+                                </div>
+                            </div>
+                            <i class="fas fa-chart-pie fa-lg" style="color: var(--danger-color)"></i>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-title">Next Bills Due</div>
+                                <div class="stat-value">Apr 15</div>
+                                <div class="stat-change">3 upcoming bills</div>
+                            </div>
+                            <i class="fas fa-calendar fa-lg" style="color: var(--warning-color)"></i>
+                        </div>
+                    </div>
+
+                    <!-- Charts -->
+                    <div class="chart-section">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Income vs Expenses</h3>
+                            <select class="filter-select">
+                                <option>Last 7 days</option>
+                                <option>Last 30 days</option>
+                                <option selected>Last 6 months</option>
+                                <option>Last year</option>
+                            </select>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="incomeExpensesChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-section">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Expenses by Category</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="expensesCategoryChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Recent Transactions -->
+                    <div class="transactions-section">
+                        <div class="section-header">
+                            <h3>Recent Transactions</h3>
+                            <a href="#" class="view-all">View All</a>
+                        </div>
+                        <div class="transaction-list">
+                            <div class="transaction-item">
+                                <div class="transaction-icon income">
+                                    <i class="fas fa-arrow-up"></i>
+                                </div>
+                                <div class="transaction-details">
+                                    <div class="transaction-title">Salary</div>
+                                    <div class="transaction-category">Income • Apr 1</div>
+                                </div>
+                                <div class="transaction-amount income">+$3,000.00</div>
+                            </div>
+
+                            <div class="transaction-item">
+                                <div class="transaction-icon expense">
+                                    <i class="fas fa-arrow-down"></i>
+                                </div>
+                                <div class="transaction-details">
+                                    <div class="transaction-title">Rent</div>
+                                    <div class="transaction-category">Housing • Apr 2</div>
+                                </div>
+                                <div class="transaction-amount expense">-$1,200.00</div>
+                            </div>
+
+                            <div class="transaction-item">
+                                <div class="transaction-icon expense">
+                                    <i class="fas fa-arrow-down"></i>
+                                </div>
+                                <div class="transaction-details">
+                                    <div class="transaction-title">Grocery Shopping</div>
+                                    <div class="transaction-category">Food • Apr 3</div>
+                                </div>
+                                <div class="transaction-amount expense">-$120.50</div>
+                            </div>
+
+                            <div class="transaction-item">
+                                <div class="transaction-icon income">
+                                    <i class="fas fa-arrow-up"></i>
+                                </div>
+                                <div class="transaction-details">
+                                    <div class="transaction-title">Freelance Work</div>
+                                    <div class="transaction-category">Income • Apr 4</div>
+                                </div>
+                                <div class="transaction-amount income">+$450.00</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Insights -->
+                    <div class="insights-section">
+                        <div class="section-header">
+                            <h3>Personalized Insights</h3>
+                        </div>
+                        <div class="insight-card">
+                            <div class="insight-header">
+                                <div class="insight-icon">
+                                    <i class="fas fa-lightbulb"></i>
+                                </div>
+                                <div class="insight-content">
+                                    <h3>Reduce Subscription Costs</h3>
+                                    <p>You're currently spending $85/month on subscriptions. Consider reviewing unused services to potentially save up to $30/month.</p>
+                                    <div class="feedback-buttons">
+                                        <button class="feedback-btn">
+                                            <i class="fas fa-thumbs-up"></i>
+                                            Helpful
+                                        </button>
+                                        <button class="feedback-btn">
+                                            <i class="fas fa-thumbs-down"></i>
+                                            Not Helpful
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="insight-card">
+                            <div class="insight-header">
+                                <div class="insight-icon">
+                                    <i class="fas fa-shield-alt"></i>
+                                </div>
+                                <div class="insight-content">
+                                    <h3>Emergency Fund</h3>
+                                    <p>Based on your spending patterns, we recommend increasing your emergency fund to cover at least 3 months of expenses.</p>
+                                    <div class="feedback-buttons">
+                                        <button class="feedback-btn">
+                                            <i class="fas fa-thumbs-up"></i>
+                                            Helpful
+                                        </button>
+                                        <button class="feedback-btn">
+                                            <i class="fas fa-thumbs-down"></i>
+                                            Not Helpful
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transactions Section -->
+            <div class="content-section" id="transactions-section">
+                <div class="header">
+                    <div class="header-content">
+                        <h1>Transactions</h1>
+                        <p>Track and manage your financial activities</p>
+                    </div>
+                    <button class="btn add-transaction">
+                        <i class="fas fa-plus"></i>
+                        Add Transaction
+                    </button>
+                </div>
+
+                <div class="transactions-container">
+                    <div class="search-bar">
+                        <div class="search-input">
+                            <i class="fas fa-search"></i>
+                            <input type="text" placeholder="Search transactions...">
+                        </div>
+                        <div class="filters">
+                            <select class="filter-select">
+                                <option value="all">All Types</option>
+                                <option value="income">Income</option>
+                                <option value="expense">Expense</option>
+                            </select>
+                            <button class="btn-icon">
+                                <i class="fas fa-filter"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <table class="transactions-table">
+                        <thead>
+                            <tr>
+                                <th>Transaction</th>
+                                <th>Category</th>
+                                <th>Date</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="transaction-title">Salary</div>
+                                    <div class="transaction-description">Monthly salary payment</div>
+                                </td>
+                                <td><span class="badge income">Income</span></td>
+                                <td>Apr 1, 2025</td>
+                                <td class="transaction-amount income">+$3,000.00</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="transaction-title">Rent</div>
+                                    <div class="transaction-description">Monthly apartment rent</div>
+                                </td>
+                                <td><span class="badge housing">Housing</span></td>
+                                <td>Apr 2, 2025</td>
+                                <td class="transaction-amount expense">-$1,200.00</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="transaction-title">Grocery Shopping</div>
+                                    <div class="transaction-description">Weekly grocery shopping at Whole Foods</div>
+                                </td>
+                                <td><span class="badge food">Food</span></td>
+                                <td>Apr 3, 2025</td>
+                                <td class="transaction-amount expense">-$120.50</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="transaction-title">Freelance Work</div>
+                                    <div class="transaction-description">Website design project payment</div>
+                                </td>
+                                <td><span class="badge income">Income</span></td>
+                                <td>Apr 4, 2025</td>
+                                <td class="transaction-amount income">+$450.00</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="transaction-title">Restaurant</div>
+                                    <div class="transaction-description">Dinner with friends at Italian restaurant</div>
+                                </td>
+                                <td><span class="badge food">Food</span></td>
+                                <td>Apr 5, 2025</td>
+                                <td class="transaction-amount expense">-$85.20</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="transaction-title">Gas</div>
+                                    <div class="transaction-description">Fuel for car</div>
+                                </td>
+                                <td><span class="badge transport">Transport</span></td>
+                                <td>Apr 6, 2025</td>
+                                <td class="transaction-amount expense">-$45.30</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="transaction-title">Internet bill</div>
+                                    <div class="transaction-description">Monthly internet subscription</div>
+                                </td>
+                                <td><span class="badge utilities">Utilities</span></td>
+                                <td>Apr 8, 2025</td>
+                                <td class="transaction-amount expense">-$60.00</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="transaction-title">Interest</div>
+                                    <div class="transaction-description">Savings account interest</div>
+                                </td>
+                                <td><span class="badge income">Income</span></td>
+                                <td>Apr 10, 2025</td>
+                                <td class="transaction-amount income">+$12.43</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="sidebar-widgets">
+                    <div class="recent-transactions">
+                        <div class="widget-header">
+                            <h3>Recent Transactions</h3>
+                            <a href="#" class="view-all">View All</a>
+                        </div>
+                        <div class="transaction-list">
+                            <!-- Recent transactions will be loaded here -->
+                        </div>
+                    </div>
+
+                    <div class="savings-goals">
+                        <div class="widget-header">
+                            <h3>New Car</h3>
+                            <span class="badge vehicle">Vehicle</span>
+                        </div>
+                        <div class="goal-progress">
+                            <p>Progress</p>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 33%"></div>
+                            </div>
+                            <div class="progress-details">
+                                <div class="saved">
+                                    <span>Saved</span>
+                                    <strong>$5,000</strong>
+                                </div>
+                                <div class="target">
+                                    <span>Target</span>
+                                    <strong>$15,000</strong>
+                                </div>
+                            </div>
+                            <div class="remaining">
+                                <span>Remaining</span>
+                                <strong>$10,000</strong>
+                            </div>
+                            <p class="due-date">Due by December 2025</p>
+                            <button class="btn add-funds">
+                                <i class="fas fa-plus"></i>
+                                Add funds
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="insights-widget">
+                        <div class="widget-header">
+                            <h3>Personalized Insights</h3>
+                        </div>
+                        <div class="insights-list">
+                            <div class="insight-item">
+                                <i class="fas fa-lightbulb"></i>
+                                <div class="insight-content">
+                                    <h4>Reduce Subscription Costs</h4>
+                                    <p>You're currently spending $85/month on subscriptions. Consider reviewing unused services to potentially save up to $30/month.</p>
+                                </div>
+                            </div>
+                            <div class="insight-item">
+                                <i class="fas fa-shield-alt"></i>
+                                <div class="insight-content">
+                                    <h4>Emergency Fund</h4>
+                                    <p>Based on your spending patterns, we recommend increasing your emergency fund to cover at least 3 months of expenses.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Savings Goals Section -->
+            <div class="content-section" id="savings-section" style="display: none;">
+                <div class="header">
+                    <div class="header-content">
+                        <h1>Savings Goals</h1>
+                        <p>Track and manage your financial goals</p>
+                    </div>
+                    <button class="btn add-goal">
+                        <i class="fas fa-plus"></i>
+                        New Goal
+                    </button>
+                </div>
+
+                <div class="goals-grid">
+                    <div class="goal-card">
+                        <div class="goal-header">
+                            <h3>New Car</h3>
+                            <span class="badge vehicle">Vehicle</span>
+                        </div>
+                        <div class="goal-progress">
+                            <div class="progress-stats">
+                                <span>Progress</span>
+                                <span class="progress-percent">33%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 33%"></div>
+                            </div>
+                            <div class="amounts-grid">
+                                <div class="amount-box">
+                                    <span>Current</span>
+                                    <strong>$5,000</strong>
+                                </div>
+                                <div class="amount-box">
+                                    <span>Target</span>
+                                    <strong>$15,000</strong>
+                                </div>
+                            </div>
+                            <div class="due-date">
+                                <span>Due by December 31, 2025</span>
+                                <span>269 days left</span>
+                            </div>
+                            <button class="btn add-funds">
+                                <i class="fas fa-plus"></i>
+                                Add Funds
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="goal-card">
+                        <div class="goal-header">
+                            <h3>Emergency Fund</h3>
+                            <span class="badge emergency">Emergency</span>
+                        </div>
+                        <div class="goal-progress">
+                            <div class="progress-stats">
+                                <span>Progress</span>
+                                <span class="progress-percent">30%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 30%"></div>
+                            </div>
+                            <div class="amounts-grid">
+                                <div class="amount-box">
+                                    <span>Current</span>
+                                    <strong>$3,000</strong>
+                                </div>
+                                <div class="amount-box">
+                                    <span>Target</span>
+                                    <strong>$10,000</strong>
+                                </div>
+                            </div>
+                            <div class="due-date">
+                                <span>Due by October 15, 2025</span>
+                                <span>192 days left</span>
+                            </div>
+                            <button class="btn add-funds">
+                                <i class="fas fa-plus"></i>
+                                Add Funds
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="goal-card">
+                        <div class="goal-header">
+                            <h3>Summer Vacation</h3>
+                            <span class="badge travel">Travel</span>
+                        </div>
+                        <div class="goal-progress">
+                            <div class="progress-stats">
+                                <span>Progress</span>
+                                <span class="progress-percent">48%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 48%"></div>
+                            </div>
+                            <div class="amounts-grid">
+                                <div class="amount-box">
+                                    <span>Current</span>
+                                    <strong>$1,200</strong>
+                                </div>
+                                <div class="amount-box">
+                                    <span>Target</span>
+                                    <strong>$2,500</strong>
+                                </div>
+                            </div>
+                            <div class="due-date">
+                                <span>Due by June 15, 2025</span>
+                                <span>70 days left</span>
+                            </div>
+                            <button class="btn add-funds">
+                                <i class="fas fa-plus"></i>
+                                Add Funds
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="goal-card">
+                        <div class="goal-header">
+                            <h3>New Laptop</h3>
+                            <span class="badge electronics">Electronics</span>
+                        </div>
+                        <div class="goal-progress">
+                            <div class="progress-stats">
+                                <span>Progress</span>
+                                <span class="progress-percent">53%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 53%"></div>
+                            </div>
+                            <div class="amounts-grid">
+                                <div class="amount-box">
+                                    <span>Current</span>
+                                    <strong>$800</strong>
+                                </div>
+                                <div class="amount-box">
+                                    <span>Target</span>
+                                    <strong>$1,500</strong>
+                                </div>
+                            </div>
+                            <div class="due-date">
+                                <span>Due by August 1, 2025</span>
+                                <span>117 days left</span>
+                            </div>
+                            <button class="btn add-funds">
+                                <i class="fas fa-plus"></i>
+                                Add Funds
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="suggested-goals">
+                    <h2>Suggested Savings Goals</h2>
+                    <p>Based on your financial activity, here are some goal suggestions</p>
+                    
+                    <div class="suggestion-grid">
+                        <div class="suggestion-card">
+                            <h3>Emergency Fund</h3>
+                            <p>Save 3-6 months of expenses for emergencies</p>
+                            <button class="btn">
+                                <i class="fas fa-plus"></i>
+                                Create
+                            </button>
+                        </div>
+                        <div class="suggestion-card">
+                            <h3>Retirement Fund</h3>
+                            <p>Start saving for your future retirement needs</p>
+                            <button class="btn">
+                                <i class="fas fa-plus"></i>
+                                Create
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Budget Section -->
+            <div class="content-section" id="budget-section" style="display: none;">
+                <div class="header">
+                    <h1>Budget</h1>
+                    <p>Track and manage your spending limits.</p>
+                </div>
+                <div class="budget-section">
+                    <div class="section-header">
+                        <div class="budget-period">
+                            <h3>Monthly Budget</h3>
+                            <span class="period">April 2025</span>
+                        </div>
+                        <button class="btn" onclick="showAddBudgetModal()">
+                            <i class="fas fa-plus"></i>
+                            Add Budget Category
+                        </button>
+                    </div>
+                    <div class="budget-summary">
+                        <div class="summary-card">
+                            <h4>Total Budget</h4>
+                            <div class="amount">$5,000.00</div>
+                        </div>
+                        <div class="summary-card">
+                            <h4>Spent</h4>
+                            <div class="amount">$2,500.00</div>
+                        </div>
+                        <div class="summary-card">
+                            <h4>Remaining</h4>
+                            <div class="amount positive">$2,500.00</div>
+                        </div>
+                    </div>
+                    <div class="budget-categories">
+                        <div class="budget-card">
+                            <div class="category-header">
+                                <h4>Housing</h4>
+                                <span class="progress">$1,800 / $2,000</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 90%"></div>
+                            </div>
+                            <div class="category-footer">
+                                <span class="remaining">$200 remaining</span>
+                                <button class="btn-icon" onclick="editBudget(1)"><i class="fas fa-edit"></i></button>
+                            </div>
+                        </div>
+                        <div class="budget-card">
+                            <div class="category-header">
+                                <h4>Food</h4>
+                                <span class="progress">$500 / $800</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 62.5%"></div>
+                            </div>
+                            <div class="category-footer">
+                                <span class="remaining">$300 remaining</span>
+                                <button class="btn-icon" onclick="editBudget(2)"><i class="fas fa-edit"></i></button>
+                            </div>
+                        </div>
+                        <div class="budget-card">
+                            <div class="category-header">
+                                <h4>Transportation</h4>
+                                <span class="progress">$200 / $500</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 40%"></div>
+                            </div>
+                            <div class="category-footer">
+                                <span class="remaining">$300 remaining</span>
+                                <button class="btn-icon" onclick="editBudget(3)"><i class="fas fa-edit"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Goals Section -->
+            <div class="content-section" id="goals-section" style="display: none;">
+                <div class="header">
+                    <h1>Financial Goals</h1>
+                    <p>Set and track your financial objectives.</p>
+                </div>
+                <div class="goals-section">
+                    <div class="section-header">
+                        <div class="goals-filter">
+                            <select id="goal-status">
+                                <option value="all">All Goals</option>
+                                <option value="active">Active</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                        </div>
+                        <button class="btn" onclick="showAddGoalModal()">
+                            <i class="fas fa-plus"></i>
+                            Add Goal
+                        </button>
+                    </div>
+                    <div class="goals-grid">
+                        <div class="goal-card">
+                            <div class="goal-header">
+                                <h4>Emergency Fund</h4>
+                                <span class="status active">Active</span>
+                            </div>
+                            <div class="goal-progress">
+                                <div class="progress-bar">
+                                    <div class="progress" style="width: 75%"></div>
+                                </div>
+                                <div class="amounts">
+                                    <span class="current">$7,500</span>
+                                    <span class="target">$10,000</span>
+                                </div>
+                            </div>
+                            <div class="goal-footer">
+                                <span class="deadline">Target: Dec 2025</span>
+                                <div class="actions">
+                                    <button class="btn-icon" onclick="editGoal(1)"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon" onclick="markGoalComplete(1)"><i class="fas fa-check"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="goal-card">
+                            <div class="goal-header">
+                                <h4>New Car</h4>
+                                <span class="status active">Active</span>
+                            </div>
+                            <div class="goal-progress">
+                                <div class="progress-bar">
+                                    <div class="progress" style="width: 30%"></div>
+                                </div>
+                                <div class="amounts">
+                                    <span class="current">$6,000</span>
+                                    <span class="target">$20,000</span>
+                                </div>
+                            </div>
+                            <div class="goal-footer">
+                                <span class="deadline">Target: Jun 2026</span>
+                                <div class="actions">
+                                    <button class="btn-icon" onclick="editGoal(2)"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon" onclick="markGoalComplete(2)"><i class="fas fa-check"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Section -->
+            <div class="content-section" id="reports-section" style="display: none;">
+                <div class="header">
+                    <h1>Reports</h1>
+                    <p>Detailed financial analysis and insights.</p>
+                </div>
+                <div class="reports-section">
+                    <div class="reports-filters">
+                        <select id="report-type">
+                            <option value="income-expense">Income vs Expenses</option>
+                            <option value="category">Expenses by Category</option>
+                            <option value="trends">Spending Trends</option>
+                        </select>
+                        <select id="report-period">
+                            <option value="monthly">Monthly</option>
+                            <option value="quarterly">Quarterly</option>
+                            <option value="yearly">Yearly</option>
+                        </select>
+                        <button class="btn" onclick="generateReport()">
+                            <i class="fas fa-download"></i>
+                            Export Report
+                        </button>
+                    </div>
+                    <div class="reports-content">
+                        <div class="report-card">
+                            <h3>Income vs Expenses</h3>
+                            <div class="chart-container">
+                                <canvas id="incomeExpensesChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="report-card">
+                            <h3>Expenses by Category</h3>
+                            <div class="chart-container">
+                                <canvas id="expensesCategoryChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="report-card">
+                            <h3>Spending Trends</h3>
+                            <div class="chart-container">
+                                <canvas id="spendingTrendsChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Replace the insights section content -->
+            <div class="content-section" id="insights-section" style="display: none;">
+                <div class="header">
+                    <div class="header-content">
+                        <h1>Financial Insights</h1>
+                        <p>Analyze your spending patterns and get personalized advice</p>
+                    </div>
+                </div>
+
+                <div class="insights-grid">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>Income vs Expenses (Annual)</h3>
+                            <p>Track your financial flow over the past year</p>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="incomeExpensesChart"></canvas>
+                        </div>
+                        <div class="legend">
+                            <div class="legend-item">
+                                <div class="legend-color legend-income"></div>
+                                <span>Income</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color legend-expenses"></div>
+                                <span>Expenses</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color legend-savings"></div>
+                                <span>Savings</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>Savings Rate</h3>
+                            <p>Percentage of income saved each month</p>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="savingsRateChart"></canvas>
+                        </div>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <span>Average Savings Rate</span>
+                                <strong>24%</strong>
+                            </div>
+                            <div class="stat-card">
+                                <span>Best Month</span>
+                                <strong>32%</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>Expense Breakdown</h3>
+                            <p>Where your money goes each month</p>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="expenseBreakdownChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Replace the settings section content -->
+            <div class="content-section" id="settings-section" style="display: none;">
+                <div class="header">
+                    <div class="header-content">
+                        <h1>Settings</h1>
+                        <p>Manage your account preferences</p>
+                    </div>
+                </div>
+
+                <div class="settings-container">
+                    <div class="settings-nav">
+                        <button class="settings-nav-item active" data-section="general">General</button>
+                        <button class="settings-nav-item" data-section="notifications">Notifications</button>
+                        <button class="settings-nav-item" data-section="security">Security</button>
+                        <button class="settings-nav-item" data-section="preferences">Preferences</button>
+                    </div>
+
+                    <!-- General Settings -->
+                    <div class="settings-section active" id="general-settings">
+                        <div class="settings-card">
+                            <h3>General Settings</h3>
+                            <p>Manage your basic account settings</p>
+                            
+                            <form id="general-form">
+                                <div class="form-group">
+                                    <label for="name">Name</label>
+                                    <input type="text" id="name" value="Demo User">
+                                </div>
+                                <div class="form-group">
+                                    <label for="email">Email</label>
+                                    <input type="email" id="email" value="user@example.com">
+                                </div>
+                                <div class="form-group">
+                                    <label for="currency">Default Currency</label>
+                                    <select id="currency">
+                                        <option value="USD">USD ($)</option>
+                                        <option value="EUR">EUR (€)</option>
+                                        <option value="GBP">GBP (£)</option>
+                                        <option value="JPY">JPY (¥)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="timezone">Timezone</label>
+                                    <select id="timezone">
+                                        <option value="America/New_York">America/New York (EDT)</option>
+                                        <option value="America/Los_Angeles">America/Los Angeles (PDT)</option>
+                                        <option value="Europe/London">Europe/London (BST)</option>
+                                        <option value="Asia/Tokyo">Asia/Tokyo (JST)</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn">Save Changes</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Notification Settings -->
+                    <div class="settings-section" id="notification-settings">
+                        <div class="settings-card">
+                            <h3>Notification Settings</h3>
+                            <p>Configure how you want to receive notifications</p>
+
+                            <div class="form-group">
+                                <div class="toggle-group">
+                                    <div>
+                                        <strong>Email Notifications</strong>
+                                        <p>Receive notifications via email</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+
+                                <div class="toggle-group">
+                                    <div>
+                                        <strong>Push Notifications</strong>
+                                        <p>Receive notifications on your device</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <h4>Notification Types</h4>
+                            <div class="toggle-group">
+                                <span>Bill payment reminders</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="toggle-group">
+                                <span>Savings goal progress</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="toggle-group">
+                                <span>Large transaction alerts</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="toggle-group">
+                                <span>AI insights and recommendations</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <button class="btn">Save Changes</button>
+                        </div>
+                    </div>
+
+                    <!-- Security Settings -->
+                    <div class="settings-section" id="security-settings">
+                        <div class="settings-card">
+                            <h3>Security Settings</h3>
+                            <p>Manage your account security</p>
+
+                            <form id="security-form">
+                                <div class="form-group">
+                                    <label for="current-password">Current Password</label>
+                                    <input type="password" id="current-password">
+                                </div>
+                                <div class="form-group">
+                                    <label for="new-password">New Password</label>
+                                    <input type="password" id="new-password">
+                                </div>
+                                <div class="form-group">
+                                    <label for="confirm-password">Confirm New Password</label>
+                                    <input type="password" id="confirm-password">
+                                </div>
+                                <div class="toggle-group">
+                                    <div>
+                                        <strong>Enable Two-Factor Authentication</strong>
+                                        <p>Add an extra layer of security to your account</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <button type="submit" class="btn">Update Password</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Add Preferences Settings Section -->
+                    <div class="settings-section" id="preferences-settings">
+                        <div class="settings-card">
+                            <h3>Preferences</h3>
+                            <p>Customize your FinTrack experience</p>
+
+                            <form id="preferences-form">
+                                <div class="form-group">
+                                    <label for="theme">Theme</label>
+                                    <select id="theme">
+                                        <option value="light">Light</option>
+                                        <option value="dark">Dark</option>
+                                        <option value="system">System Default</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="language">Language</label>
+                                    <select id="language">
+                                        <option value="en">English</option>
+                                        <option value="es">Spanish</option>
+                                        <option value="fr">French</option>
+                                    </select>
+                                </div>
+                                <div class="toggle-group">
+                                    <div>
+                                        <strong>Compact View</strong>
+                                        <p>Display more information in less space</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="toggle-group">
+                                    <div>
+                                        <strong>Auto-refresh Dashboard</strong>
+                                        <p>Automatically update dashboard data</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <button type="submit" class="btn">Save Preferences</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = themeToggle.querySelector('i');
+        const themeText = themeToggle.querySelector('span');
+        
+        // Check for saved theme preference
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', currentTheme);
+        updateThemeButton(currentTheme);
+
+        themeToggle.addEventListener('click', () => {
+            const newTheme = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeButton(newTheme);
+        });
+
+        function updateThemeButton(theme) {
+            if (theme === 'dark') {
+                themeIcon.className = 'fas fa-sun';
+                themeText.textContent = 'Light Mode';
+            } else {
+                themeIcon.className = 'fas fa-moon';
+                themeText.textContent = 'Dark Mode';
+            }
+        }
+
+        // Navigation functionality
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // Remove active class from all links
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                
+                // Add active class to clicked link
+                link.classList.add('active');
+                
+                // Hide all sections
+                document.querySelectorAll('.content-section').forEach(section => {
+                    section.style.display = 'none';
+                });
+                
+                // Show selected section
+                const sectionId = link.getAttribute('data-section') + '-section';
+                document.getElementById(sectionId).style.display = 'block';
+            });
+        });
+
+        // Modal functionality
+        function showModal() {
+            document.getElementById('addTransactionModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('addTransactionModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('addTransactionModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Transaction type toggle
+        document.querySelectorAll('.type-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+
+        // Add transaction button click handler
+        document.querySelector('.add-transaction').addEventListener('click', showModal);
+
+        // Close button click handler
+        document.querySelector('.close-modal').addEventListener('click', closeModal);
+
+        // Form submission handler
+        document.getElementById('transactionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Add your form submission logic here
+            closeModal();
+        });
+
+        // Initialize charts when the insights section is shown
+        document.querySelector('[data-section="insights"]').addEventListener('click', () => {
+            setTimeout(initCharts, 100);
+        });
+
+        function initCharts() {
+            // Income vs Expenses Chart
+            const incomeExpensesCtx = document.getElementById('incomeExpensesChart');
+            if (incomeExpensesCtx) {
+                new Chart(incomeExpensesCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                        datasets: [
+                            {
+                                label: 'Income',
+                                data: [4500, 4200, 4800, 5450, 4600, 5000],
+                                borderColor: '#10B981',
+                                tension: 0.4,
+                                fill: false
+                            },
+                            {
+                                label: 'Expenses',
+                                data: [3200, 3400, 3100, 3240, 3500, 3400],
+                                borderColor: '#EF4444',
+                                tension: 0.4,
+                                fill: false
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: value => '$' + value
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Savings Rate Chart
+            const savingsRateCtx = document.getElementById('savingsRateChart');
+            if (savingsRateCtx) {
+                new Chart(savingsRateCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                        datasets: [{
+                            label: 'Savings Rate',
+                            data: [28, 19, 32, 23, 24, 32],
+                            backgroundColor: '#6366F1',
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: value => value + '%'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Expense Breakdown Chart
+            const expenseBreakdownCtx = document.getElementById('expenseBreakdownChart');
+            if (expenseBreakdownCtx) {
+                new Chart(expenseBreakdownCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Housing', 'Food', 'Transport', 'Entertainment', 'Others'],
+                        datasets: [{
+                            data: [49, 24, 12, 8, 6],
+                            backgroundColor: [
+                                '#10B981',
+                                '#6366F1',
+                                '#F59E0B',
+                                '#EF4444',
+                                '#6B7280'
+                            ],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right'
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Settings navigation
+        document.querySelectorAll('.settings-nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                // Update active nav item
+                document.querySelectorAll('.settings-nav-item').forEach(navItem => {
+                    navItem.classList.remove('active');
+                });
+                item.classList.add('active');
+
+                // Hide all settings sections
+                document.querySelectorAll('.settings-section').forEach(section => {
+                    section.style.display = 'none';
+                });
+
+                // Show corresponding section
+                const sectionId = `${item.dataset.section}-settings`;
+                const section = document.getElementById(sectionId);
+                if (section) {
+                    section.style.display = 'block';
+                }
+            });
+        });
+
+        // Initialize settings section visibility
+        document.addEventListener('DOMContentLoaded', () => {
+            // Hide all settings sections except general
+            document.querySelectorAll('.settings-section').forEach(section => {
+                section.style.display = section.id === 'general-settings' ? 'block' : 'none';
+            });
+        });
+
+        // Form submissions
+        document.getElementById('general-form')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Add your form submission logic here
+            alert('General settings saved!');
+        });
+
+        document.getElementById('security-form')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Add your form submission logic here
+            alert('Security settings updated!');
+        });
+
+        document.getElementById('preferences-form')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Add your form submission logic here
+            alert('Preferences saved!');
+        });
+    </script>
+</body>
+</html> 
