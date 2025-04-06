@@ -5,6 +5,10 @@ const path = require('path');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { connectDB, User, Transaction, SavingsGoal } = require('./db');
+const authRoutes = require('./routes/auth');
+const transactionRoutes = require('./routes/transaction');
+const budgetRoutes = require('./routes/budget');
+const savingsRoutes = require('./routes/savings');
 
 console.log('Starting server...');
 
@@ -261,6 +265,12 @@ app.put('/api/savings-goals/:id', authMiddleware, async (req, res) => {
         });
     }
 });
+
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/transactions', transactionRoutes);
+app.use('/api/budgets', budgetRoutes);
+app.use('/api/savings-goals', savingsRoutes);
 
 // Handle 404 for API routes
 app.use('/api/*', (req, res) => {
