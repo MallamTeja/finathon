@@ -173,7 +173,7 @@
         .transaction-item {
             display: flex;
             justify-content: space-between;
-            padding: 1rem;
+                padding: 1rem;
             border-bottom: 1px solid var(--border);
         }
 
@@ -1104,17 +1104,17 @@
 </head>
 <body>
     <!-- Theme Toggle Button -->
-    <button class="theme-toggle" id="themeToggle">
+                <button class="theme-toggle" id="themeToggle">
         <span class="light-icon">☀️</span>
         <span class="dark-icon" style="display: none;">🌙</span>
-    </button>
+                </button>
 
     <!-- Sidebar Navigation -->
     <div class="sidebar">
         <div class="logo">
             <i class="fas fa-chart-line"></i>
             FinTrack
-        </div>
+            </div>
         
         <div class="nav-container">
             <button class="nav-button active" onclick="showSection('dashboard')">
@@ -1145,8 +1145,8 @@
                 <i class="fas fa-user"></i>
                 Profile
             </button>
-        </div>
-    </div>
+                    </div>
+                </div>
 
     <!-- Main Content -->
     <div class="main-content">
@@ -1158,12 +1158,12 @@
                     <h3>Total Balance</h3>
                     <div class="amount positive">$8,550.75</div>
                     <div class="change positive">+3.2% vs. last month</div>
-                </div>
+                                </div>
                 <div class="card">
                     <h3>Monthly Income</h3>
                     <div class="amount positive">$5,450.00</div>
                     <div class="change positive">+12% vs last month</div>
-                </div>
+                            </div>
                 <div class="card">
                     <h3>Monthly Expenses</h3>
                     <div class="amount negative">$3,240.50</div>
@@ -1173,27 +1173,27 @@
                     <h3>Next Bills Due</h3>
                     <div class="amount">Apr 15</div>
                     <div class="change">3 upcoming bills</div>
-                </div>
-            </div>
+                        </div>
+                    </div>
 
             <div class="transaction-list">
                 <h2>Recent Transactions</h2>
                 <div class="transaction-item">
-                    <div>
+                            <div>
                         <div>Salary</div>
                         <div class="text-sm">Income - Apr 1</div>
-                    </div>
+                                </div>
                     <div class="amount positive">+$3,000.00</div>
-                </div>
+                            </div>
                 <div class="transaction-item">
-                    <div>
+                            <div>
                         <div>Rent</div>
                         <div class="text-sm">Housing - Apr 2</div>
-                    </div>
+                                </div>
                     <div class="amount negative">-$1,200.00</div>
-                </div>
-            </div>
-        </div>
+                            </div>
+                        </div>
+                    </div>
 
         <!-- Savings Goals Section -->
         <div class="section" id="savings">
@@ -1203,12 +1203,12 @@
                     <button class="add-goal-btn" onclick="showAddGoalModal()">
                         <i class="fas fa-plus"></i> Add New Goal
                     </button>
-                </div>
+                            </div>
                 <div class="savings-grid" id="savingsGrid">
                     <!-- Goal cards will be populated here -->
                 </div>
-            </div>
-        </div>
+                        </div>
+                    </div>
 
         <!-- Budget Goals Section -->
         <div class="section" id="budget">
@@ -1216,21 +1216,21 @@
                 <h1>Manage Budget Goals</h1>
                 <div id="budgetWarning" class="budget-warning">
                     ⚠️ Budget limit exceeded for <span id="warningCategory"></span>! Transaction not recorded.
-                </div>
+                        </div>
                 <div id="budgetCategories">
                     <!-- Budget categories will be populated here -->
-                </div>
-            </div>
-        </div>
+                        </div>
+                    </div>
+                        </div>
 
         <!-- Insights Section -->
         <div class="section" id="insights">
             <h1>Financial Insights</h1>
-            <div class="chart-container">
+                        <div class="chart-container">
                 <h2>Spending Categories</h2>
                 <!-- Add chart here -->
-            </div>
-        </div>
+                        </div>
+                    </div>
 
         <!-- Settings Section -->
         <div class="section" id="settings">
@@ -1242,16 +1242,16 @@
                         <option>Light</option>
                         <option>Dark</option>
                     </select>
-                </div>
+                        </div>
                 <button class="primary-btn">Save Changes</button>
             </form>
-        </div>
+                                </div>
 
         <!-- Notification -->
         <div class="notification" id="notification">
             <i class="fas fa-check-circle"></i>
             <span id="notificationText"></span>
-        </div>
+                            </div>
 
         <!-- Profile Section -->
         <div class="section" id="profile">
@@ -1260,14 +1260,14 @@
                 <div class="flex items-center gap-4">
                     <div class="avatar-lg">
                         <i class="fas fa-user-circle"></i>
-                    </div>
+                                </div>
                     <div>
                         <h2>John Doe</h2>
                         <p>john.doe@example.com</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+                                </div>
+                            </div>
+                                </div>
+                            </div>
 
         <!-- Add Transaction Section -->
         <div class="section" id="add-transaction">
@@ -1301,7 +1301,7 @@
                             <option value="freelance" class="income-option" style="display: none;">Freelance</option>
                         </select>
                         <input type="text" id="customCategory" placeholder="Enter custom category" style="display: none;">
-                    </div>
+                        </div>
 
                     <!-- Amount Field -->
                     <div class="form-group">
@@ -1312,14 +1312,14 @@
                             <button type="button" class="quick-amount-btn" data-amount="500">₹500</button>
                             <button type="button" class="quick-amount-btn" data-amount="1000">₹1000</button>
                             <button type="button" class="quick-amount-btn" data-amount="5000">₹5000</button>
-                        </div>
-                    </div>
+                </div>
+            </div>
 
                     <!-- Date Picker -->
                     <div class="form-group">
                         <label for="date">Date</label>
                         <input type="date" id="date" required>
-                    </div>
+                </div>
 
                     <!-- Notes Field -->
                     <div class="form-group">
@@ -1329,16 +1329,16 @@
 
                     <button type="submit" class="primary-btn">Add Transaction</button>
                 </form>
-            </div>
+                </div>
 
             <!-- Recent Transactions Section -->
-            <div class="recent-transactions">
+                    <div class="recent-transactions">
                 <h2>Recent Transactions</h2>
                 <div id="recentTransactionsList">
                     <!-- Transactions will be populated here -->
-                </div>
-            </div>
-        </div>
+                        </div>
+                        </div>
+                    </div>
 
         <!-- Add Goal Modal -->
         <div class="modal" id="addGoalModal">
@@ -1349,19 +1349,19 @@
                     <div class="form-group">
                         <label for="goalTitle">Goal Title</label>
                         <input type="text" id="goalTitle" required>
-                    </div>
+                        </div>
                     <div class="form-group">
                         <label for="targetAmount">Target Amount (₹)</label>
                         <input type="number" id="targetAmount" min="0" required>
-                    </div>
+                            </div>
                     <div class="form-group">
                         <label for="deadline">Deadline</label>
                         <input type="date" id="deadline" required>
-                    </div>
+                                </div>
                     <div class="form-group">
                         <label for="initialAmount">Initial Saved Amount (₹)</label>
                         <input type="number" id="initialAmount" min="0">
-                    </div>
+                                </div>
                     <div class="form-group">
                         <label>Category</label>
                         <div class="category-icons">
@@ -1373,16 +1373,16 @@
                             </div>
                             <div class="category-icon" data-category="emergency">
                                 <i class="fas fa-shield-alt"></i>
-                            </div>
+                        </div>
                             <div class="category-icon" data-category="other">
                                 <i class="fas fa-piggy-bank"></i>
+                                </div>
                             </div>
                         </div>
-                    </div>
                     <button type="submit" class="primary-btn">Create Goal</button>
                 </form>
+                </div>
             </div>
-        </div>
 
         <!-- Update Savings Modal -->
         <div class="modal" id="updateSavingsModal">
@@ -1396,9 +1396,9 @@
                     </div>
                     <button type="submit" class="primary-btn">Add to Savings</button>
                 </form>
-            </div>
-        </div>
-    </div>
+                </div>
+                        </div>
+                    </div>
 
     <script>
         // Theme toggle functionality
@@ -1546,17 +1546,17 @@
                         <div class="budget-category-label">${category.label}</div>
                         <div class="budget-toggle ${budget.enabled ? 'active' : ''}" 
                              data-category="${category.id}"></div>
-                    </div>
+                                </div>
                     <div class="budget-progress">
                         <div class="budget-progress-bar">
                             <div class="budget-progress-fill" 
                                  style="width: ${budget.limit ? Math.min((budget.spent / budget.limit * 100), 100) : 0}%"
                                  data-category="${category.id}"></div>
-                        </div>
+                                </div>
                         <div class="budget-spent">
                             You've spent ₹${budget.spent} this month
-                        </div>
-                    </div>
+                                    </div>
+                                </div>
                     <form class="budget-limit-form" data-category="${category.id}">
                         <input type="number" 
                                class="budget-limit-input" 
@@ -1565,7 +1565,7 @@
                                min="0"
                                required>
                         <button type="submit" class="primary-btn">Save</button>
-                    </form>
+                            </form>
                 `;
 
                 budgetCategoriesContainer.appendChild(card);
@@ -1813,7 +1813,7 @@
         // Display savings goals
         function displaySavingsGoals(goals) {
             savingsGrid.innerHTML = '';
-            
+
             goals.forEach(goal => {
                 const progress = (goal.saved / goal.target) * 100;
                 const daysLeft = Math.ceil((new Date(goal.deadline) - new Date()) / (1000 * 60 * 60 * 24));
@@ -1836,10 +1836,10 @@
                             <div class="progress-fill ${getProgressClass(progress)}" 
                                  style="width: ${Math.min(progress, 100)}%"></div>
                         </div>
-                    </div>
+                            </div>
                     <div class="goal-time ${getTimeClass(daysLeft)}">
                         ${getTimeText(daysLeft)}
-                    </div>
+                            </div>
                     <div class="goal-actions">
                         <button class="update-btn" onclick="showUpdateSavingsModal('${goal._id}')">
                             Add Savings
@@ -1888,8 +1888,8 @@
 
         // Add new goal
         addGoalForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
+                e.preventDefault();
+                
             const title = document.getElementById('goalTitle').value;
             const target = parseFloat(document.getElementById('targetAmount').value);
             const deadline = document.getElementById('deadline').value;
@@ -1994,4 +1994,4 @@
         });
     </script>
 </body>
-</html>
+</html> 

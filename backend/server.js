@@ -287,11 +287,15 @@ app.use((err, req, res, next) => {
     res.status(500).json({ message: 'Something went wrong!' });
 });
 
-// Start server
+// Update the server start code
 const PORT = process.env.PORT || 5000;
-console.log(`Starting server on port ${PORT}...`);
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/fintrack';
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server is running on port ${PORT}`);
-  console.log(`API available at: http://localhost:${PORT}/api`);
-}); 
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+        console.log(`API available at: http://localhost:${PORT}/api`);
+    });
+}
+
+module.exports = app; 
