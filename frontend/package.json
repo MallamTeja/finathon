@@ -1,0 +1,16 @@
+{
+  "name": "fintrack-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for FinTrack - Personal Finance Manager",
+  "main": "index.js",
+  "scripts": {
+    "start": "serve public",
+    "dev": "serve public -l 3000"
+  },
+  "dependencies": {
+    "serve": "^14.2.1"
+  },
+  "devDependencies": {},
+  "author": "",
+  "license": "MIT"
+} 
