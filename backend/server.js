@@ -5,7 +5,17 @@ const cors = require('cors');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { User, Transaction, SavingsGoal } = require('./db');
+
+console.log('Starting server with MongoDB URI:', process.env.MONGODB_URI);
+
+// Import models and database connection
+const { connectDB } = require('./db');
+const User = require('./models/User');
+const Transaction = require('./models/Transaction');
+const SavingsGoal = require('./models/SavingsGoal');
+const Budget = require('./models/Budget');
+
+// Import routes
 const authRoutes = require('./routes/auth');
 const transactionRoutes = require('./routes/transaction');
 const budgetRoutes = require('./routes/budget');
@@ -21,8 +31,10 @@ console.log('Express app created');
 
 // Middleware
 app.use(cors({
-    origin: '*',  // Allow all origins in development
-    credentials: true
+  origin: '*',  // Allow all origins in development
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 
@@ -30,9 +42,15 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, '../frontend/public')));
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log('MongoDB connected successfully'))
-    .catch(err => console.error('MongoDB connection error:', err));
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log('Connected to MongoDB directly'))
+.catch(err => {
+  console.error('MongoDB connection error (direct):', err);
+  process.exit(1);
+});
 
 // Add error handler for MongoDB connection
 process.on('unhandledRejection', (err) => {
@@ -71,47 +89,58 @@ app.get('/api', (req, res) => {
 // Auth middleware
 const authMiddleware = async (req, res, next) => {
     try {
-        const token = req.header('Authorization')?.replace('Bearer ', '');
+        const token = req.headers.authorization?.split(' ')[1];
+        
         if (!token) {
-            return res.status(401).json({ message: 'Authentication required' });
+            return res.status(401).json({ error: 'No token provided' });
         }
-
+        
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const user = await User.findById(decoded.userId);
         
         if (!user) {
-            return res.status(401).json({ message: 'User not found' });
+            return res.status(401).json({ error: 'User not found' });
         }
-
+        
         req.user = user;
         next();
     } catch (error) {
-        res.status(401).json({ message: 'Invalid token' });
+        console.error('Auth error:', error);
+        res.status(401).json({ error: 'Invalid token' });
     }
 };
 
-// Auth Routes
+// Register route
 app.post('/api/auth/register', async (req, res) => {
     try {
         const { name, email, password } = req.body;
-
+        
         if (!name || !email || !password) {
-            return res.status(400).json({ message: 'All fields are required' });
+            return res.status(400).json({ error: 'All fields are required' });
         }
 
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            return res.status(400).json({ message: 'Email already registered' });
+            return res.status(400).json({ error: 'User with this email already exists' });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const user = await User.create({
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        const user = new User({
             name,
             email,
-            password: hashedPassword
+            password: hashedPassword,
+            balance: 0
         });
 
-        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
+        await user.save();
+
+        const token = jwt.sign(
+            { userId: user._id },
+            process.env.JWT_SECRET,
+            { expiresIn: '24h' }
+        );
 
         res.status(201).json({
             token,
@@ -122,30 +151,35 @@ app.post('/api/auth/register', async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Registration error:', error);
-        res.status(500).json({ message: 'Server error during registration' });
+        console.error('Error registering user:', error);
+        res.status(500).json({ error: 'Failed to register user' });
     }
 });
 
+// Login route
 app.post('/api/auth/login', async (req, res) => {
     try {
         const { email, password } = req.body;
-
+        
         if (!email || !password) {
-            return res.status(400).json({ message: 'Email and password are required' });
+            return res.status(400).json({ error: 'Email and password are required' });
         }
 
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(401).json({ message: 'Invalid credentials' });
+            return res.status(401).json({ error: 'Invalid credentials' });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(401).json({ message: 'Invalid credentials' });
+            return res.status(401).json({ error: 'Invalid credentials' });
         }
 
-        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
+        const token = jwt.sign(
+            { userId: user._id },
+            process.env.JWT_SECRET,
+            { expiresIn: '24h' }
+        );
 
         res.json({
             token,
@@ -156,8 +190,8 @@ app.post('/api/auth/login', async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Login error:', error);
-        res.status(500).json({ message: 'Server error during login' });
+        console.error('Error logging in:', error);
+        res.status(500).json({ error: 'Failed to log in' });
     }
 });
 
@@ -174,11 +208,10 @@ app.get('/api/transactions', authMiddleware, async (req, res) => {
 
 app.post('/api/transactions', authMiddleware, async (req, res) => {
     try {
-        const { type, category, amount, description } = req.body;
+        const { type, category, amount, description, date } = req.body;
         
-        // Validate input
-        if (!type || !category || !amount || !description) {
-            return res.status(400).json({ error: 'All fields are required' });
+        if (!type || !category || !amount) {
+            return res.status(400).json({ error: 'Type, category and amount are required' });
         }
         
         if (type !== 'income' && type !== 'expense') {
@@ -194,20 +227,18 @@ app.post('/api/transactions', authMiddleware, async (req, res) => {
             type,
             category,
             amount,
-            description,
-            date: new Date()
+            description: description || '',
+            date: date ? new Date(date) : new Date()
         });
 
         await transaction.save();
         
-        // Update user's balance
-        const user = await User.findById(req.user._id);
         if (type === 'income') {
-            user.balance += amount;
+            req.user.balance += amount;
         } else {
-            user.balance -= amount;
+            req.user.balance -= amount;
         }
-        await user.save();
+        await req.user.save();
 
         res.status(201).json(transaction);
     } catch (error) {
@@ -219,14 +250,10 @@ app.post('/api/transactions', authMiddleware, async (req, res) => {
 // Get dashboard data
 app.get('/api/dashboard', authMiddleware, async (req, res) => {
     try {
-        const user = await User.findById(req.user._id);
-        
-        // Get recent transactions
         const recentTransactions = await Transaction.find({ user: req.user._id })
             .sort({ date: -1 })
             .limit(5);
         
-        // Calculate income and expenses for current month
         const currentDate = new Date();
         const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
         
@@ -244,10 +271,10 @@ app.get('/api/dashboard', authMiddleware, async (req, res) => {
             .reduce((sum, t) => sum + t.amount, 0);
 
         res.json({
-            balance: user.balance,
-            income,
-            expenses,
-            recentTransactions
+            balance: req.user.balance || 0,
+            income: income || 0,
+            expenses: expenses || 0,
+            recentTransactions: recentTransactions || []
         });
     } catch (error) {
         console.error('Error getting dashboard data:', error);
@@ -258,45 +285,40 @@ app.get('/api/dashboard', authMiddleware, async (req, res) => {
 // Savings Goals Routes
 app.get('/api/savings-goals', authMiddleware, async (req, res) => {
     try {
-        const goals = await SavingsGoal.find({ user_id: req.user._id })
-            .sort({ due_date: 1 });
-        res.json({
-            success: true,
-            goals
-        });
+        const goals = await SavingsGoal.find({ user: req.user._id });
+        res.json(goals);
     } catch (error) {
-        console.error('Error fetching savings goals:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Server error',
-            message: 'Error fetching savings goals'
-        });
+        console.error('Error getting savings goals:', error);
+        res.status(500).json({ error: 'Failed to get savings goals' });
     }
 });
 
 app.post('/api/savings-goals', authMiddleware, async (req, res) => {
     try {
-        const { title, target_amount, category, due_date } = req.body;
+        const { title, target_amount, category, due_date, current_amount } = req.body;
         
-        const goal = await SavingsGoal.create({
-            user_id: req.user._id,
+        if (!title || !target_amount || !category || !due_date) {
+            return res.status(400).json({ error: 'All fields are required' });
+        }
+        
+        if (isNaN(target_amount) || target_amount <= 0) {
+            return res.status(400).json({ error: 'Invalid target amount' });
+        }
+
+        const goal = new SavingsGoal({
+            user: req.user._id,
             title,
             target_amount,
             category,
-            due_date: new Date(due_date)
+            due_date: new Date(due_date),
+            current_amount: current_amount || 0
         });
 
-        res.status(201).json({
-            success: true,
-            goal
-        });
+        await goal.save();
+        res.status(201).json(goal);
     } catch (error) {
         console.error('Error creating savings goal:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Server error',
-            message: 'Error creating savings goal'
-        });
+        res.status(500).json({ error: 'Failed to create savings goal' });
     }
 });
 
@@ -304,7 +326,7 @@ app.put('/api/savings-goals/:id', authMiddleware, async (req, res) => {
     try {
         const { current_amount } = req.body;
         const goal = await SavingsGoal.findOneAndUpdate(
-            { _id: req.params.id, user_id: req.user._id },
+            { _id: req.params.id, user: req.user._id },
             { current_amount },
             { new: true }
         );
@@ -331,20 +353,92 @@ app.put('/api/savings-goals/:id', authMiddleware, async (req, res) => {
     }
 });
 
+// Budget Routes
+app.post('/api/budgets', authMiddleware, async (req, res) => {
+    try {
+        const { category, limit } = req.body;
+        
+        if (!category || !limit) {
+            return res.status(400).json({ error: 'All fields are required' });
+        }
+        
+        if (isNaN(limit) || limit <= 0) {
+            return res.status(400).json({ error: 'Invalid budget limit' });
+        }
+
+        const budget = new Budget({
+            user: req.user._id,
+            category,
+            limit
+        });
+
+        await budget.save();
+        res.status(201).json(budget);
+    } catch (error) {
+        console.error('Error creating budget:', error);
+        res.status(500).json({ error: 'Failed to create budget' });
+    }
+});
+
+// Get budgets
+app.get('/api/budgets', authMiddleware, async (req, res) => {
+    try {
+        const budgets = await Budget.find({ user: req.user._id });
+        
+        const currentDate = new Date();
+        const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        
+        const monthlyTransactions = await Transaction.find({
+            user: req.user._id,
+            date: { $gte: firstDayOfMonth },
+            type: 'expense'
+        });
+        
+        const budgetsWithSpending = budgets.map(budget => {
+            const spending = monthlyTransactions
+                .filter(t => t.category === budget.category)
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            return {
+                ...budget.toObject(),
+                current_spending: spending
+            };
+        });
+
+        res.json(budgetsWithSpending);
+    } catch (error) {
+        console.error('Error getting budgets:', error);
+        res.status(500).json({ error: 'Failed to get budgets' });
+    }
+});
+
+// User profile route
+app.get('/api/auth/profile', authMiddleware, async (req, res) => {
+    try {
+        res.json({
+            id: req.user._id,
+            name: req.user.name,
+            email: req.user.email,
+            balance: req.user.balance
+        });
+    } catch (error) {
+        console.error('Error fetching profile:', error);
+        res.status(500).json({ error: 'Failed to fetch profile' });
+    }
+});
+
 const PORT = process.env.PORT || 5000;
 
-// Serve static files for any route not matching /api
+// Serve frontend for any other route
 app.get('*', (req, res) => {
-    if (!req.path.startsWith('/api')) {
-        res.sendFile(path.join(__dirname, '../frontend/public/index.html'));
-    }
+    res.sendFile(path.join(__dirname, '../frontend/public/index.html'));
 });
 
 // Listen on all network interfaces
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
-    console.log(`Frontend available at: http://localhost:${PORT}`);
-    console.log(`API available at: http://localhost:${PORT}/api`);
+    console.log(`Frontend URL: http://localhost:${PORT}`);
+    console.log(`API URL: http://localhost:${PORT}/api`);
 });
 
 module.exports = app; 

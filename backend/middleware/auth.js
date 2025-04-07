@@ -3,24 +3,24 @@ const User = require('../models/User');
 
 const auth = async (req, res, next) => {
     try {
-        const token = req.header('Authorization')?.replace('Bearer ', '');
+        const token = req.headers.authorization?.split(' ')[1];
         
         if (!token) {
-            throw new Error('No token provided');
+            return res.status(401).json({ error: 'No token provided' });
         }
-
+        
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const user = await User.findOne({ _id: decoded.userId });
-
+        const user = await User.findById(decoded.userId);
+        
         if (!user) {
-            throw new Error('User not found');
+            return res.status(401).json({ error: 'User not found' });
         }
-
-        req.token = token;
+        
         req.user = user;
         next();
     } catch (error) {
-        res.status(401).json({ error: 'Please authenticate' });
+        console.error('Auth error:', error);
+        res.status(401).json({ error: 'Invalid token' });
     }
 };
 

@@ -1182,59 +1182,91 @@
             background: #1f2937;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
         }
+
+        /* Add styles for success message */
+        .success-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #10b981;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+            opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .no-transactions {
+            text-align: center;
+            padding: 1rem;
+            color: var(--text);
+            opacity: 0.7;
+        }
     </style>
 </head>
 <body>
     <!-- Theme Toggle Button -->
     <div class="top-right-buttons">
-        <button class="theme-toggle" id="themeToggle">
+                <button class="theme-toggle" id="themeToggle">
             <span class="light-icon">☀️</span>
             <span class="dark-icon" style="display: none;">🌙</span>
-        </button>
+                </button>
         <button class="logout-button" id="logoutButton">
-            <i class="fas fa-sign-out-alt"></i>
+                    <i class="fas fa-sign-out-alt"></i>
             Logout
         </button>
-    </div>
+            </div>
 
     <!-- Sidebar Navigation -->
     <div class="sidebar">
         <div class="logo">
             <i class="fas fa-chart-line"></i>
             FinTrack
-        </div>
-        
+                </div>
+
         <div class="nav-container">
             <button class="nav-button active" onclick="showSection('dashboard')">
-                <i class="fas fa-home"></i>
+                                    <i class="fas fa-home"></i>
                 Dashboard
-            </button>
+                                        </button>
             <button class="nav-button" onclick="showSection('add-transaction')">
                 <i class="fas fa-plus-circle"></i>
                 Add Transaction
-            </button>
+                                        </button>
             <button class="nav-button" onclick="showSection('savings')">
                 <i class="fas fa-bullseye"></i>
                 Savings Goals
-            </button>
+                                        </button>
             <button class="nav-button" onclick="showSection('budget')">
                 <i class="fas fa-wallet"></i>
                 Budget Goals
-            </button>
+                                        </button>
             <button class="nav-button" onclick="showSection('insights')">
                 <i class="fas fa-chart-pie"></i>
                 Insights
-            </button>
+                    </button>
             <button class="nav-button" onclick="showSection('settings')">
                 <i class="fas fa-cog"></i>
                 Settings
-            </button>
+                            </button>
             <button class="nav-button" onclick="showSection('profile')">
                 <i class="fas fa-user"></i>
                 Profile
-            </button>
-        </div>
-    </div>
+                            </button>
+                        </div>
+                    </div>
 
     <!-- Main Content -->
     <div class="main-content">
@@ -1244,19 +1276,19 @@
             <div class="overview-grid">
                 <div class="card">
                     <h3>Total Balance</h3>
-                    <div class="amount positive">$8,550.75</div>
+                    <div id="balance" class="amount positive">₹0.00</div>
                     <div class="change positive">+3.2% vs. last month</div>
-                </div>
+                        </div>
                 <div class="card">
                     <h3>Monthly Income</h3>
-                    <div class="amount positive">$5,450.00</div>
+                    <div id="income" class="amount positive">₹0.00</div>
                     <div class="change positive">+12% vs last month</div>
-                </div>
+                                </div>
                 <div class="card">
                     <h3>Monthly Expenses</h3>
-                    <div class="amount negative">$3,240.50</div>
+                    <div id="expenses" class="amount negative">₹0.00</div>
                     <div class="change negative">-5% vs last month</div>
-                </div>
+                            </div>
                 <div class="card">
                     <h3>Next Bills Due</h3>
                     <div class="amount">Apr 15</div>
@@ -1266,11 +1298,12 @@
 
             <div class="transaction-list">
                 <h2>Recent Transactions</h2>
-                <div id="recentTransactionsList">
+                <ul id="recentTransactions">
                     <!-- Transactions will be populated here -->
+                    <li class="no-transactions">No transactions yet</li>
+                </ul>
+                    </div>
                 </div>
-            </div>
-        </div>
 
         <!-- Add Transaction Section -->
         <div class="section" id="add-transaction">
@@ -1322,18 +1355,18 @@
                     <div class="form-group">
                         <label for="date">Date</label>
                         <input type="date" id="date" required>
-                    </div>
+                </div>
 
                     <!-- Notes Field -->
                     <div class="form-group">
                         <label for="notes">Notes (Optional)</label>
                         <textarea id="notes" rows="3"></textarea>
-                    </div>
+            </div>
 
                     <button type="submit" class="primary-btn">Add Transaction</button>
                 </form>
+                </div>
             </div>
-        </div>
 
         <!-- Savings Goals Section -->
         <div class="section" id="savings">
@@ -1342,13 +1375,13 @@
                     <h1>Your Saving Goals</h1>
                     <button class="add-goal-btn" onclick="showAddGoalModal()">
                         <i class="fas fa-plus"></i> Add New Goal
-                    </button>
-                </div>
+                        </button>
+                    </div>
                 <div class="savings-grid" id="savingsGrid">
                     <!-- Goal cards will be populated here -->
+                            </div>
                 </div>
             </div>
-        </div>
 
         <!-- Budget Goals Section -->
         <div class="section" id="budget">
@@ -1359,18 +1392,18 @@
                 </div>
                 <div id="budgetCategories">
                     <!-- Budget categories will be populated here -->
+                    </div>
                 </div>
             </div>
-        </div>
 
         <!-- Insights Section -->
         <div class="section" id="insights">
-            <h1>Financial Insights</h1>
-            <div class="chart-container">
+                        <h1>Financial Insights</h1>
+                            <div class="chart-container">
                 <h2>Spending Categories</h2>
                 <!-- Add chart here -->
-            </div>
-        </div>
+                    </div>
+                </div>
 
         <!-- Settings Section -->
         <div class="section" id="settings">
@@ -1382,17 +1415,17 @@
                         <option value="light">Light</option>
                         <option value="dark">Dark</option>
                     </select>
-                </div>
+                        </div>
                 <button type="submit" class="primary-btn">Save Changes</button>
             </form>
-        </div>
+                    </div>
 
         <!-- Profile Section -->
         <div class="section" id="profile">
             <div class="profile-container">
                 <div class="profile-header">
                     <h1>Profile</h1>
-                </div>
+                        </div>
                 <div class="profile-card">
                     <div class="profile-info">
                         <div class="avatar">
@@ -1401,18 +1434,18 @@
                         <div class="user-details">
                             <h2 id="profileName">Loading...</h2>
                             <p id="profileEmail">Loading...</p>
-                        </div>
-                    </div>
+                            </div>
+                            </div>
                     <div class="profile-actions">
                         <button class="logout-button" id="profileLogoutButton">
                             <i class="fas fa-sign-out-alt"></i>
                             Logout
                         </button>
+                        </div>
+                    </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
     <!-- Add Goal Modal -->
     <div class="modal" id="addGoalModal">
@@ -1420,43 +1453,43 @@
             <button class="modal-close" onclick="hideAddGoalModal()">&times;</button>
             <h2 class="modal-title">Add New Savings Goal</h2>
             <form id="addGoalForm">
-                <div class="form-group">
+                                <div class="form-group">
                     <label for="goalTitle">Goal Title</label>
                     <input type="text" id="goalTitle" required>
-                </div>
-                <div class="form-group">
+                                </div>
+                                <div class="form-group">
                     <label for="targetAmount">Target Amount (₹)</label>
                     <input type="number" id="targetAmount" min="0" required>
-                </div>
-                <div class="form-group">
+                                </div>
+                                <div class="form-group">
                     <label for="deadline">Deadline</label>
                     <input type="date" id="deadline" required>
-                </div>
-                <div class="form-group">
+                                </div>
+                                <div class="form-group">
                     <label for="initialAmount">Initial Saved Amount (₹)</label>
                     <input type="number" id="initialAmount" min="0">
-                </div>
-                <div class="form-group">
+                                </div>
+                            <div class="form-group">
                     <label>Category</label>
                     <div class="category-icons">
                         <div class="category-icon" data-category="travel">
                             <i class="fas fa-plane"></i>
-                        </div>
+                                    </div>
                         <div class="category-icon" data-category="gadget">
                             <i class="fas fa-mobile-alt"></i>
-                        </div>
+                                </div>
                         <div class="category-icon" data-category="emergency">
                             <i class="fas fa-shield-alt"></i>
-                        </div>
+                                    </div>
                         <div class="category-icon" data-category="other">
                             <i class="fas fa-piggy-bank"></i>
+                                </div>
+                            </div>
+                            </div>
+                <button type="submit" class="primary-btn">Create Goal</button>
+                            </form>
                         </div>
                     </div>
-                </div>
-                <button type="submit" class="primary-btn">Create Goal</button>
-            </form>
-        </div>
-    </div>
 
     <!-- Update Savings Modal -->
     <div class="modal" id="updateSavingsModal">
@@ -1464,92 +1497,120 @@
             <button class="modal-close" onclick="hideUpdateSavingsModal()">&times;</button>
             <h2 class="modal-title">Update Savings</h2>
             <form id="updateSavingsForm">
-                <div class="form-group">
+                                <div class="form-group">
                     <label for="addAmount">Amount to Add (₹)</label>
                     <input type="number" id="addAmount" min="0" required>
-                </div>
+                                </div>
                 <button type="submit" class="primary-btn">Add to Savings</button>
-            </form>
-        </div>
+                            </form>
+                        </div>
     </div>
 
     <script>
+        // Define API base URL
+        const API_BASE_URL = 'http://localhost:5000/api';
+
+        // Function to format currency in INR
+        function formatCurrency(amount) {
+            return `₹${parseFloat(amount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        }
+
         // Function to check authentication
         function checkAuth() {
             const token = localStorage.getItem('token');
             if (!token) {
-                window.location.href = '/login';
+                window.location.href = '/login.html';
+                return null;
             }
             return token;
         }
 
-        // Theme toggle functionality
-        function toggleTheme() {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            
-            // Update theme attribute
-            document.documentElement.setAttribute('data-theme', newTheme);
-            
-            // Update theme toggle button icons
-            const lightIcon = document.querySelector('.light-icon');
-            const darkIcon = document.querySelector('.dark-icon');
-            
-            if (newTheme === 'dark') {
-                lightIcon.style.display = 'none';
-                darkIcon.style.display = 'inline';
-            } else {
-                lightIcon.style.display = 'inline';
-                darkIcon.style.display = 'none';
-            }
-            
-            // Save theme preference
-            localStorage.setItem('theme', newTheme);
-        }
-
-        // Function to show sections
+        // Function to show/hide sections
         function showSection(sectionId) {
-            // Check authentication first
-            if (!checkAuth()) return;
-
-            // Hide all sections
             document.querySelectorAll('.section').forEach(section => {
                 section.classList.remove('active');
             });
+            document.getElementById(sectionId).classList.add('active');
 
-            // Remove active class from all buttons
+            // Update active state in navigation
             document.querySelectorAll('.nav-button').forEach(button => {
                 button.classList.remove('active');
-            });
-
-            // Show selected section
-            const selectedSection = document.getElementById(sectionId);
-            if (selectedSection) {
-                selectedSection.classList.add('active');
-                // Add active class to clicked button
-                event.currentTarget.classList.add('active');
-
-                // Load section-specific data
-                switch(sectionId) {
-                    case 'dashboard':
-                        loadDashboardData();
-                        break;
-                    case 'savings':
-                        loadSavingsGoals();
-                        break;
-                    case 'budget':
-                        loadBudgetData();
-                        break;
-                    case 'profile':
-                        loadProfileData();
-                        break;
+                if (button.getAttribute('onclick').includes(sectionId)) {
+                    button.classList.add('active');
                 }
+            });
+        }
+
+        // Function to load dashboard data
+        async function loadDashboardData() {
+            try {
+                const token = checkAuth();
+                const response = await fetch(`${API_BASE_URL}/dashboard`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load dashboard data');
+                }
+
+                const data = await response.json();
+                
+                // Update balance, income, and expenses
+                document.getElementById('balance').textContent = formatCurrency(data.balance);
+                document.getElementById('income').textContent = formatCurrency(data.income);
+                document.getElementById('expenses').textContent = formatCurrency(data.expenses);
+
+                // Update recent transactions
+                const transactionsList = document.getElementById('recentTransactions');
+                transactionsList.innerHTML = '';
+
+                if (data.recentTransactions.length === 0) {
+                    transactionsList.innerHTML = '<li class="no-transactions">No transactions yet</li>';
+                } else {
+                    data.recentTransactions.forEach(transaction => {
+                        const li = document.createElement('li');
+                        li.className = `transaction ${transaction.type}`;
+                        li.innerHTML = `
+                            <div class="transaction-info">
+                                <span class="category">${transaction.category}</span>
+                                <span class="date">${new Date(transaction.date).toLocaleDateString()}</span>
+                            </div>
+                            <div class="amount ${transaction.type}">
+                                ${transaction.type === 'expense' ? '-' : '+'}${formatCurrency(transaction.amount)}
+                            </div>
+                        `;
+                        transactionsList.appendChild(li);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+                alert('Failed to load dashboard data');
             }
         }
 
-        // Function to format currency with INR symbol
-        function formatCurrency(amount) {
-            return `₹${parseFloat(amount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        // Function to handle transaction type switching
+        function handleTransactionTypeSwitch() {
+            const typeButtons = document.querySelectorAll('.type-btn');
+            typeButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    typeButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                });
+            });
+        }
+
+        // Function to handle quick amount buttons
+        function handleQuickAmountButtons() {
+            const quickAmountButtons = document.querySelectorAll('.quick-amount-btn');
+            const amountInput = document.getElementById('amount');
+
+            quickAmountButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    amountInput.value = button.dataset.amount;
+                });
+            });
         }
 
         // Function to add transaction
@@ -1557,12 +1618,30 @@
             e.preventDefault();
             const token = checkAuth();
             
+            const activeTypeButton = document.querySelector('.type-btn.active');
+            if (!activeTypeButton) {
+                alert('Please select a transaction type (Income or Expense)');
+                return;
+            }
+
             const formData = {
-                type: document.getElementById('transactionType').value,
-                category: document.getElementById('transactionCategory').value,
-                amount: parseFloat(document.getElementById('transactionAmount').value),
-                description: document.getElementById('transactionDescription').value
+                type: activeTypeButton.dataset.type,
+                category: document.getElementById('category').value,
+                amount: parseFloat(document.getElementById('amount').value),
+                description: document.getElementById('notes').value || '',
+                date: document.getElementById('date').value || new Date().toISOString().split('T')[0]
             };
+
+            // Validate form data
+            if (!formData.category) {
+                alert('Please select a category');
+                return;
+            }
+
+            if (!formData.amount || formData.amount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
 
             try {
                 const response = await fetch(`${API_BASE_URL}/transactions`, {
@@ -1575,157 +1654,166 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('Failed to add transaction');
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to add transaction');
                 }
 
-                const data = await response.json();
-                alert('Transaction added successfully!');
-                document.getElementById('addTransactionForm').reset();
-                document.getElementById('addTransactionModal').style.display = 'none';
-                loadDashboardData();
+                // Show success message
+                showSuccessMessage('Transaction added successfully!');
+
+                // Reset form
+                document.getElementById('transactionForm').reset();
+                
+                // Reset type buttons
+                const typeButtons = document.querySelectorAll('.type-btn');
+                typeButtons.forEach(btn => btn.classList.remove('active'));
+                
+                // Reload dashboard and show it
+                await loadDashboardData();
+                showSection('dashboard');
             } catch (error) {
                 console.error('Error adding transaction:', error);
-                alert('Failed to add transaction. Please try again.');
+                alert(error.message || 'Failed to add transaction');
             }
         }
 
-        // Function to load dashboard data
-        async function loadDashboardData() {
+        // Function to add savings goal
+        async function addSavingsGoal(e) {
+                e.preventDefault();
             const token = checkAuth();
-            try {
-                const response = await fetch(`${API_BASE_URL}/dashboard`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                const data = await response.json();
-                
-                // Update balance
-                document.getElementById('balance').textContent = formatCurrency(data.balance);
-                
-                // Update income
-                document.getElementById('income').textContent = formatCurrency(data.income);
-                
-                // Update expenses
-                document.getElementById('expenses').textContent = formatCurrency(data.expenses);
-                
-                // Update recent transactions
-                const transactionsList = document.getElementById('recentTransactions');
-                transactionsList.innerHTML = '';
-                data.recentTransactions.forEach(transaction => {
-                    const li = document.createElement('li');
-                    li.className = `transaction-item ${transaction.type}`;
-                    li.innerHTML = `
-                        <div class="transaction-info">
-                            <span class="transaction-category">${transaction.category}</span>
-                            <span class="transaction-amount ${transaction.type}">${formatCurrency(transaction.amount)}</span>
-                        </div>
-                        <div class="transaction-description">${transaction.description}</div>
-                        <div class="transaction-date">${new Date(transaction.date).toLocaleDateString()}</div>
-                    `;
-                    transactionsList.appendChild(li);
-                });
-            } catch (error) {
-                console.error('Error loading dashboard data:', error);
-            }
-        }
 
-        // Function to load savings goals
-        async function loadSavingsGoals() {
-            const token = checkAuth();
-            try {
-                const response = await fetch(`${API_BASE_URL}/savings`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                const data = await response.json();
-                
-                const goalsList = document.getElementById('savingsGoalsList');
-                goalsList.innerHTML = '';
-                data.forEach(goal => {
-                    const progress = (goal.current_amount / goal.target_amount) * 100;
-                    const li = document.createElement('li');
-                    li.className = 'savings-goal-item';
-                    li.innerHTML = `
-                        <div class="goal-info">
-                            <span class="goal-title">${goal.title}</span>
-                            <span class="goal-amount">${formatCurrency(goal.current_amount)} / ${formatCurrency(goal.target_amount)}</span>
-                        </div>
-                        <div class="goal-progress">
-                            <div class="progress-bar" style="width: ${progress}%"></div>
-                        </div>
-                        <div class="goal-details">
-                            <span class="goal-category">${goal.category}</span>
-                            <span class="goal-due-date">Due: ${new Date(goal.due_date).toLocaleDateString()}</span>
-                        </div>
-                    `;
-                    goalsList.appendChild(li);
-                });
-            } catch (error) {
-                console.error('Error loading savings goals:', error);
-            }
-        }
+            const formData = {
+                title: document.getElementById('goalTitle').value,
+                target_amount: parseFloat(document.getElementById('targetAmount').value),
+                category: document.querySelector('.category-icon.active')?.dataset.category || 'other',
+                due_date: document.getElementById('deadline').value,
+                current_amount: parseFloat(document.getElementById('initialAmount').value) || 0
+            };
 
-        // Function to load budget goals
-        async function loadBudgetData() {
-            const token = checkAuth();
             try {
-                const response = await fetch(`${API_BASE_URL}/budget`, {
+                const response = await fetch(`${API_BASE_URL}/savings-goals`, {
+                    method: 'POST',
                     headers: {
+                        'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
-                    }
+                    },
+                    body: JSON.stringify(formData)
                 });
-                const data = await response.json();
-                
-                const budgetList = document.getElementById('budgetGoalsList');
-                budgetList.innerHTML = '';
-                data.forEach(budget => {
-                    const progress = (budget.current_amount / budget.limit) * 100;
-                    const li = document.createElement('li');
-                    li.className = 'budget-goal-item';
-                    li.innerHTML = `
-                        <div class="budget-info">
-                            <span class="budget-category">${budget.category}</span>
-                            <span class="budget-amount">${formatCurrency(budget.current_amount)} / ${formatCurrency(budget.limit)}</span>
-                        </div>
-                        <div class="budget-progress">
-                            <div class="progress-bar" style="width: ${progress}%"></div>
-                        </div>
-                    `;
-                    budgetList.appendChild(li);
-                });
-            } catch (error) {
-                console.error('Error loading budget goals:', error);
-            }
-        }
 
-        // Load profile data
-        async function loadProfileData() {
-            try {
-                const token = checkAuth();
-                const response = await fetch(`${API_BASE_URL}/auth/profile`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    document.getElementById('profileName').textContent = data.name;
-                    document.getElementById('profileEmail').textContent = data.email;
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to add savings goal');
                 }
+
+                // Show success message
+                showSuccessMessage('Savings goal added successfully!');
+
+                // Reset form
+                document.getElementById('savingsGoalForm').reset();
+                
+                // Reload savings goals
+                await loadSavingsGoals();
+                showSection('savings');
             } catch (error) {
-                console.error('Error loading profile:', error);
+                console.error('Error adding savings goal:', error);
+                alert(error.message || 'Failed to add savings goal');
             }
+        }
+
+        // Function to add budget goal
+        async function addBudgetGoal(e) {
+            e.preventDefault();
+            const token = checkAuth();
+
+            const formData = {
+                category: document.getElementById('budgetCategory').value,
+                limit: parseFloat(document.getElementById('budgetLimit').value)
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/budgets`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to add budget goal');
+                }
+
+                // Show success message
+                showSuccessMessage('Budget goal added successfully!');
+
+                // Reset form
+                document.getElementById('budgetGoalForm').reset();
+                
+                // Reload budget goals
+                await loadBudgetGoals();
+                showSection('budget');
+            } catch (error) {
+                console.error('Error adding budget goal:', error);
+                alert(error.message || 'Failed to add budget goal');
+            }
+        }
+
+        // Function to show success message
+        function showSuccessMessage(message) {
+            const successMessage = document.createElement('div');
+            successMessage.className = 'success-message';
+            successMessage.textContent = message;
+            document.body.appendChild(successMessage);
+            
+            setTimeout(() => {
+                successMessage.remove();
+            }, 3000);
+        }
+
+        // Function to toggle theme
+        function toggleTheme() {
+            const root = document.documentElement;
+            const currentTheme = root.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            root.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            // Update theme toggle button icons
+            const lightIcon = document.querySelector('.light-icon');
+            const darkIcon = document.querySelector('.dark-icon');
+            
+            if (newTheme === 'dark') {
+                lightIcon.style.display = 'none';
+                darkIcon.style.display = 'inline';
+            } else {
+                lightIcon.style.display = 'inline';
+                darkIcon.style.display = 'none';
+            }
+        }
+
+        // Function to handle logout
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = '/login.html';
         }
 
         // Initialize the page
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             // Check authentication
-            checkAuth();
+            const token = checkAuth();
+            if (!token) return;
 
             // Load initial data
-            loadDashboardData();
+            await loadDashboardData();
+
+            // Initialize transaction type switching
+            handleTransactionTypeSwitch();
+
+            // Initialize quick amount buttons
+            handleQuickAmountButtons();
 
             // Set up event listeners
             setupEventListeners();
@@ -1749,24 +1837,33 @@
 
         // Set up event listeners
         function setupEventListeners() {
-            // Theme toggle button
+            // Theme toggle
             document.getElementById('themeToggle').addEventListener('click', toggleTheme);
 
             // Logout buttons
             document.getElementById('logoutButton').addEventListener('click', logout);
             document.getElementById('profileLogoutButton').addEventListener('click', logout);
 
-            // Remove the old theme select listener
-            const themeSelect = document.getElementById('themeSelect');
-            if (themeSelect) {
-                themeSelect.removeEventListener('change', function() {});
-            }
-        }
+        // Form submissions
+            document.getElementById('transactionForm').addEventListener('submit', addTransaction);
+            document.getElementById('savingsGoalForm').addEventListener('submit', addSavingsGoal);
+            document.getElementById('budgetGoalForm').addEventListener('submit', addBudgetGoal);
 
-        // Add logout functionality
-        function logout() {
-            localStorage.removeItem('token');
-            window.location.href = '/login';
+            // Navigation buttons
+            document.querySelectorAll('.nav-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const section = button.getAttribute('onclick').match(/'([^']+)'/)[1];
+                    showSection(section);
+                });
+            });
+
+            // Category icons for savings goals
+            document.querySelectorAll('.category-icon').forEach(icon => {
+                icon.addEventListener('click', () => {
+                    document.querySelectorAll('.category-icon').forEach(i => i.classList.remove('active'));
+                    icon.classList.add('active');
+                });
+            });
         }
     </script>
 </body>

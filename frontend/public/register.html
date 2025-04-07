@@ -252,7 +252,8 @@
                 submitButton.disabled = true;
                 submitButton.textContent = 'Creating Account...';
                 
-                const response = await fetch('http://localhost:5000/api/auth/register', {
+                console.log('Sending registration request to:', '/api/auth/register');
+                const response = await fetch('/api/auth/register', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -263,7 +264,7 @@
                 const data = await response.json();
                 
                 if (!response.ok) {
-                    throw new Error(data.message || 'Registration failed');
+                    throw new Error(data.error || 'Registration failed');
                 }
                 
                 // Store user data and token
@@ -275,7 +276,7 @@
                 submitButton.textContent = 'Account Created! Redirecting...';
                 
                 setTimeout(() => {
-                    window.location.href = '/';
+                    window.location.href = '/mainpage.html';
                 }, 1500);
             } catch (error) {
                 console.error('Registration error:', error);

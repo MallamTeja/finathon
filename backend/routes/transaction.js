@@ -1,42 +1,65 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('../middleware/auth');
 const Transaction = require('../models/Transaction');
+const auth = require('../middleware/auth');
 
-// Get all transactions
+// Get all transactions for a user
 router.get('/', auth, async (req, res) => {
     try {
-        const transactions = await Transaction.find({ userId: req.user._id })
+        const transactions = await Transaction.find({ user: req.user._id })
             .sort({ date: -1 });
         res.json(transactions);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error('Error getting transactions:', error);
+        res.status(500).json({ error: 'Failed to get transactions' });
     }
 });
 
 // Add new transaction
 router.post('/', auth, async (req, res) => {
     try {
-        const { description, amount, category, type, date } = req.body;
+        const { type, category, amount, description, date } = req.body;
         
+        if (!type || !category || !amount) {
+            return res.status(400).json({ error: 'Type, category and amount are required' });
+        }
+        
+        if (type !== 'income' && type !== 'expense') {
+            return res.status(400).json({ error: 'Invalid transaction type' });
+        }
+        
+        if (isNaN(amount) || amount <= 0) {
+            return res.status(400).json({ error: 'Invalid amount' });
+        }
+
         const transaction = new Transaction({
-            userId: req.user._id,
-            description,
-            amount: Number(amount),
-            category,
+            user: req.user._id,
             type,
+            category,
+            amount,
+            description: description || '',
             date: date ? new Date(date) : new Date()
         });
 
         await transaction.save();
+        
+        // Update user's balance
+        if (type === 'income') {
+            req.user.balance += amount;
+        } else {
+            req.user.balance -= amount;
+        }
+        await req.user.save();
+
         res.status(201).json(transaction);
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        console.error('Error adding transaction:', error);
+        res.status(500).json({ error: 'Failed to add transaction' });
     }
 });
 
 // Update transaction
-router.patch('/:id', auth, async (req, res) => {
+router.patch('/:id', async (req, res) => {
     try {
         const updates = Object.keys(req.body);
         const allowedUpdates = ['description', 'amount', 'category', 'type', 'date'];
@@ -48,7 +71,7 @@ router.patch('/:id', auth, async (req, res) => {
 
         const transaction = await Transaction.findOne({
             _id: req.params.id,
-            userId: req.user._id
+            user: req.user._id
         });
 
         if (!transaction) {
@@ -64,11 +87,11 @@ router.patch('/:id', auth, async (req, res) => {
 });
 
 // Delete transaction
-router.delete('/:id', auth, async (req, res) => {
+router.delete('/:id', async (req, res) => {
     try {
         const transaction = await Transaction.findOneAndDelete({
             _id: req.params.id,
-            userId: req.user._id
+            user: req.user._id
         });
 
         if (!transaction) {

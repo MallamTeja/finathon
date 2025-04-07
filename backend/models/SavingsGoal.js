@@ -1,48 +1,31 @@
 const mongoose = require('mongoose');
 
 const savingsGoalSchema = new mongoose.Schema({
-    userId: {
+    user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
     },
     title: {
         type: String,
-        required: true,
-        trim: true
+        required: true
     },
     target_amount: {
         type: Number,
-        required: true,
-        min: 0
+        required: true
     },
     current_amount: {
         type: Number,
-        default: 0,
-        min: 0
-    },
-    due_date: {
-        type: Date,
-        required: true,
-        validate: {
-            validator: function(value) {
-                return value instanceof Date && !isNaN(value);
-            },
-            message: 'Invalid date format'
-        }
+        default: 0
     },
     category: {
         type: String,
-        required: true,
-        enum: ['Emergency Fund', 'Vacation', 'Education', 'Home', 'Car', 'Other']
+        required: true
     },
-    status: {
-        type: String,
-        enum: ['In Progress', 'Completed', 'Failed'],
-        default: 'In Progress'
+    due_date: {
+        type: Date,
+        required: true
     }
-}, {
-    timestamps: true
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model('SavingsGoal', savingsGoalSchema); 

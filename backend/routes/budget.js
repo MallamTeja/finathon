@@ -1,73 +1,121 @@
 const express = require('express');
 const router = express.Router();
 const Budget = require('../models/Budget');
+const Transaction = require('../models/Transaction');
 const auth = require('../middleware/auth');
 
-// Get all budgets
+// Get all budgets for a user
 router.get('/', auth, async (req, res) => {
     try {
-        const budgets = await Budget.find({ userId: req.user._id });
-        const budgetMap = {};
-        budgets.forEach(budget => {
-            budgetMap[budget.category] = {
-                limit: budget.limit,
-                spent: budget.spent,
-                enabled: budget.enabled
+        const budgets = await Budget.find({ user: req.user._id });
+        
+        // Calculate current spending for each budget category
+        const currentDate = new Date();
+        const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        
+        const monthlyTransactions = await Transaction.find({
+            user: req.user._id,
+            date: { $gte: firstDayOfMonth },
+            type: 'expense'
+        });
+        
+        const budgetsWithSpending = budgets.map(budget => {
+            const spending = monthlyTransactions
+                .filter(t => t.category === budget.category)
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            return {
+                ...budget.toObject(),
+                current_spending: spending
             };
         });
-        res.json(budgetMap);
+
+        res.json(budgetsWithSpending);
     } catch (error) {
-        res.status(500).json({ message: 'Error fetching budgets' });
+        console.error('Error getting budgets:', error);
+        res.status(500).json({ error: 'Failed to get budgets' });
     }
 });
 
-// Get budget by category
-router.get('/:category', auth, async (req, res) => {
+// Add new budget
+router.post('/', auth, async (req, res) => {
     try {
-        const budget = await Budget.findOne({
-            userId: req.user._id,
-            category: req.params.category
-        });
-        if (!budget) {
-            return res.json({
-                limit: 0,
-                spent: 0,
-                enabled: false
-            });
+        const { category, limit } = req.body;
+        
+        if (!category || !limit) {
+            return res.status(400).json({ error: 'Category and limit are required' });
         }
-        res.json(budget);
+        
+        if (isNaN(limit) || limit <= 0) {
+            return res.status(400).json({ error: 'Invalid budget limit' });
+        }
+
+        // Check if budget for this category already exists
+        const existingBudget = await Budget.findOne({
+            user: req.user._id,
+            category
+        });
+
+        if (existingBudget) {
+            return res.status(400).json({ error: 'Budget for this category already exists' });
+        }
+
+        const budget = new Budget({
+            user: req.user._id,
+            category,
+            limit
+        });
+
+        await budget.save();
+        res.status(201).json(budget);
     } catch (error) {
-        res.status(500).json({ message: 'Error fetching budget' });
+        console.error('Error creating budget:', error);
+        res.status(500).json({ error: 'Failed to create budget' });
     }
 });
 
 // Update budget
-router.patch('/:category', auth, async (req, res) => {
+router.patch('/:id', auth, async (req, res) => {
     try {
-        const { limit, enabled } = req.body;
+        const { limit } = req.body;
+        
+        if (!limit || isNaN(limit) || limit <= 0) {
+            return res.status(400).json({ error: 'Invalid budget limit' });
+        }
+
         const budget = await Budget.findOneAndUpdate(
-            { userId: req.user._id, category: req.params.category },
-            { $set: { limit, enabled } },
-            { new: true, upsert: true }
+            { _id: req.params.id, user: req.user._id },
+            { limit },
+            { new: true }
         );
+
+        if (!budget) {
+            return res.status(404).json({ error: 'Budget not found' });
+        }
+
         res.json(budget);
     } catch (error) {
-        res.status(500).json({ message: 'Error updating budget' });
+        console.error('Error updating budget:', error);
+        res.status(500).json({ error: 'Failed to update budget' });
     }
 });
 
-// Update spent amount
-router.patch('/:category/spent', auth, async (req, res) => {
+// Delete budget
+router.delete('/:id', auth, async (req, res) => {
     try {
-        const { amount } = req.body;
-        const budget = await Budget.findOneAndUpdate(
-            { userId: req.user._id, category: req.params.category },
-            { $inc: { spent: amount } },
-            { new: true, upsert: true }
-        );
-        res.json(budget);
+        const budget = await Budget.findOneAndDelete({
+            _id: req.params.id,
+            user: req.user._id
+        });
+
+        if (!budget) {
+            return res.status(404).json({ error: 'Budget not found' });
+        }
+
+        res.json({ message: 'Budget deleted successfully' });
     } catch (error) {
-        res.status(500).json({ message: 'Error updating spent amount' });
+        console.error('Error deleting budget:', error);
+        res.status(500).json({ error: 'Failed to delete budget' });
     }
 });
 
