@@ -271,37 +271,16 @@ app.put('/api/savings-goals/:id', authMiddleware, async (req, res) => {
     }
 });
 
-// Handle all other routes by serving index.html
-app.get('*', (req, res) => {
-    // Don't serve index.html for API routes
-    if (req.path.startsWith('/api')) {
-        return res.status(404).json({
-            success: false,
-            error: 'Not Found',
-            message: 'API endpoint not found'
-        });
-    }
-    
-    // For all other routes, serve the appropriate HTML file
-    const requestPath = req.path.toLowerCase();
-    if (requestPath === '/login') {
-        res.sendFile(path.join(__dirname, '../frontend/public/login.html'));
-    } else if (requestPath === '/register') {
-        res.sendFile(path.join(__dirname, '../frontend/public/register.html'));
-    } else if (requestPath === '/dashboard' || requestPath === '/mainpage') {
-        res.sendFile(path.join(__dirname, '../frontend/public/mainpage.html'));
-    } else {
-        res.sendFile(path.join(__dirname, '../frontend/public/login.html'));
-    }
-});
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ message: 'Something went wrong!' });
-});
-
 const PORT = process.env.PORT || 5000;
+
+// Serve static files for any route not matching /api
+app.get('*', (req, res) => {
+    if (!req.path.startsWith('/api')) {
+        res.sendFile(path.join(__dirname, '../frontend/public/index.html'));
+    }
+});
+
+// Listen on all network interfaces
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
     console.log(`Frontend available at: http://localhost:${PORT}`);
