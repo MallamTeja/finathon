@@ -1106,14 +1106,96 @@
         .theme-toggle:hover {
             background-color: var(--border);
         }
+
+        /* Add these styles */
+        .top-right-buttons {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            gap: 1rem;
+            z-index: 1000;
+        }
+
+        .logout-button {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+
+        .logout-button:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        .profile-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .profile-card {
+            background: var(--bg);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 2rem;
+        }
+
+        .profile-info {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .avatar {
+            font-size: 4rem;
+            color: var(--primary);
+        }
+
+        .user-details h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .user-details p {
+            color: var(--text);
+            opacity: 0.7;
+        }
+
+        .profile-actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        [data-theme="dark"] .profile-card {
+            background: #1f2937;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
     </style>
 </head>
 <body>
     <!-- Theme Toggle Button -->
-    <button class="theme-toggle" id="themeToggle">
-        <span class="light-icon">☀️</span>
-        <span class="dark-icon" style="display: none;">🌙</span>
-    </button>
+    <div class="top-right-buttons">
+        <button class="theme-toggle" id="themeToggle">
+            <span class="light-icon">☀️</span>
+            <span class="dark-icon" style="display: none;">🌙</span>
+        </button>
+        <button class="logout-button" id="logoutButton">
+            <i class="fas fa-sign-out-alt"></i>
+            Logout
+        </button>
+    </div>
 
     <!-- Sidebar Navigation -->
     <div class="sidebar">
@@ -1307,15 +1389,25 @@
 
         <!-- Profile Section -->
         <div class="section" id="profile">
-            <h1>User Profile</h1>
-            <div class="card">
-                <div class="flex items-center gap-4">
-                    <div class="avatar-lg">
-                        <i class="fas fa-user-circle"></i>
+            <div class="profile-container">
+                <div class="profile-header">
+                    <h1>Profile</h1>
+                </div>
+                <div class="profile-card">
+                    <div class="profile-info">
+                        <div class="avatar">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <div class="user-details">
+                            <h2 id="profileName">Loading...</h2>
+                            <p id="profileEmail">Loading...</p>
+                        </div>
                     </div>
-                    <div>
-                        <h2 id="profileName">Loading...</h2>
-                        <p id="profileEmail">Loading...</p>
+                    <div class="profile-actions">
+                        <button class="logout-button" id="profileLogoutButton">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1455,37 +1547,164 @@
             }
         }
 
-        // Load dashboard data
-        async function loadDashboardData() {
+        // Function to format currency with INR symbol
+        function formatCurrency(amount) {
+            return `₹${parseFloat(amount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        }
+
+        // Function to add transaction
+        async function addTransaction(e) {
+            e.preventDefault();
+            const token = checkAuth();
+            
+            const formData = {
+                type: document.getElementById('transactionType').value,
+                category: document.getElementById('transactionCategory').value,
+                amount: parseFloat(document.getElementById('transactionAmount').value),
+                description: document.getElementById('transactionDescription').value
+            };
+
             try {
-                const token = checkAuth();
-                const response = await fetch('/api/transactions/summary', {
+                const response = await fetch(`${API_BASE_URL}/transactions`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to add transaction');
+                }
+
+                const data = await response.json();
+                alert('Transaction added successfully!');
+                document.getElementById('addTransactionForm').reset();
+                document.getElementById('addTransactionModal').style.display = 'none';
+                loadDashboardData();
+            } catch (error) {
+                console.error('Error adding transaction:', error);
+                alert('Failed to add transaction. Please try again.');
+            }
+        }
+
+        // Function to load dashboard data
+        async function loadDashboardData() {
+            const token = checkAuth();
+            try {
+                const response = await fetch(`${API_BASE_URL}/dashboard`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
                 });
-                if (response.ok) {
-                    const data = await response.json();
-                    updateDashboard(data);
-                }
+                const data = await response.json();
+                
+                // Update balance
+                document.getElementById('balance').textContent = formatCurrency(data.balance);
+                
+                // Update income
+                document.getElementById('income').textContent = formatCurrency(data.income);
+                
+                // Update expenses
+                document.getElementById('expenses').textContent = formatCurrency(data.expenses);
+                
+                // Update recent transactions
+                const transactionsList = document.getElementById('recentTransactions');
+                transactionsList.innerHTML = '';
+                data.recentTransactions.forEach(transaction => {
+                    const li = document.createElement('li');
+                    li.className = `transaction-item ${transaction.type}`;
+                    li.innerHTML = `
+                        <div class="transaction-info">
+                            <span class="transaction-category">${transaction.category}</span>
+                            <span class="transaction-amount ${transaction.type}">${formatCurrency(transaction.amount)}</span>
+                        </div>
+                        <div class="transaction-description">${transaction.description}</div>
+                        <div class="transaction-date">${new Date(transaction.date).toLocaleDateString()}</div>
+                    `;
+                    transactionsList.appendChild(li);
+                });
             } catch (error) {
-                console.error('Error loading dashboard:', error);
+                console.error('Error loading dashboard data:', error);
             }
         }
 
-        // Update dashboard with data
-        function updateDashboard(data) {
-            // Update cards with real data
-            document.querySelector('.card:nth-child(1) .amount').textContent = `₹${data.totalBalance}`;
-            document.querySelector('.card:nth-child(2) .amount').textContent = `₹${data.monthlyIncome}`;
-            document.querySelector('.card:nth-child(3) .amount').textContent = `₹${data.monthlyExpenses}`;
+        // Function to load savings goals
+        async function loadSavingsGoals() {
+            const token = checkAuth();
+            try {
+                const response = await fetch(`${API_BASE_URL}/savings`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await response.json();
+                
+                const goalsList = document.getElementById('savingsGoalsList');
+                goalsList.innerHTML = '';
+                data.forEach(goal => {
+                    const progress = (goal.current_amount / goal.target_amount) * 100;
+                    const li = document.createElement('li');
+                    li.className = 'savings-goal-item';
+                    li.innerHTML = `
+                        <div class="goal-info">
+                            <span class="goal-title">${goal.title}</span>
+                            <span class="goal-amount">${formatCurrency(goal.current_amount)} / ${formatCurrency(goal.target_amount)}</span>
+                        </div>
+                        <div class="goal-progress">
+                            <div class="progress-bar" style="width: ${progress}%"></div>
+                        </div>
+                        <div class="goal-details">
+                            <span class="goal-category">${goal.category}</span>
+                            <span class="goal-due-date">Due: ${new Date(goal.due_date).toLocaleDateString()}</span>
+                        </div>
+                    `;
+                    goalsList.appendChild(li);
+                });
+            } catch (error) {
+                console.error('Error loading savings goals:', error);
+            }
+        }
+
+        // Function to load budget goals
+        async function loadBudgetData() {
+            const token = checkAuth();
+            try {
+                const response = await fetch(`${API_BASE_URL}/budget`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await response.json();
+                
+                const budgetList = document.getElementById('budgetGoalsList');
+                budgetList.innerHTML = '';
+                data.forEach(budget => {
+                    const progress = (budget.current_amount / budget.limit) * 100;
+                    const li = document.createElement('li');
+                    li.className = 'budget-goal-item';
+                    li.innerHTML = `
+                        <div class="budget-info">
+                            <span class="budget-category">${budget.category}</span>
+                            <span class="budget-amount">${formatCurrency(budget.current_amount)} / ${formatCurrency(budget.limit)}</span>
+                        </div>
+                        <div class="budget-progress">
+                            <div class="progress-bar" style="width: ${progress}%"></div>
+                        </div>
+                    `;
+                    budgetList.appendChild(li);
+                });
+            } catch (error) {
+                console.error('Error loading budget goals:', error);
+            }
         }
 
         // Load profile data
         async function loadProfileData() {
             try {
                 const token = checkAuth();
-                const response = await fetch('/api/auth/profile', {
+                const response = await fetch(`${API_BASE_URL}/auth/profile`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -1533,11 +1752,21 @@
             // Theme toggle button
             document.getElementById('themeToggle').addEventListener('click', toggleTheme);
 
-            // Remove the old theme select listener since we're using the toggle button
+            // Logout buttons
+            document.getElementById('logoutButton').addEventListener('click', logout);
+            document.getElementById('profileLogoutButton').addEventListener('click', logout);
+
+            // Remove the old theme select listener
             const themeSelect = document.getElementById('themeSelect');
             if (themeSelect) {
                 themeSelect.removeEventListener('change', function() {});
             }
+        }
+
+        // Add logout functionality
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = '/login';
         }
     </script>
 </body>

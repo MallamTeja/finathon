@@ -175,23 +175,83 @@ app.get('/api/transactions', authMiddleware, async (req, res) => {
 app.post('/api/transactions', authMiddleware, async (req, res) => {
     try {
         const { type, category, amount, description } = req.body;
-
+        
+        // Validate input
         if (!type || !category || !amount || !description) {
-            return res.status(400).json({ message: 'All fields are required' });
+            return res.status(400).json({ error: 'All fields are required' });
+        }
+        
+        if (type !== 'income' && type !== 'expense') {
+            return res.status(400).json({ error: 'Invalid transaction type' });
+        }
+        
+        if (isNaN(amount) || amount <= 0) {
+            return res.status(400).json({ error: 'Invalid amount' });
         }
 
-        const transaction = await Transaction.create({
+        const transaction = new Transaction({
             user: req.user._id,
             type,
             category,
             amount,
-            description
+            description,
+            date: new Date()
         });
+
+        await transaction.save();
+        
+        // Update user's balance
+        const user = await User.findById(req.user._id);
+        if (type === 'income') {
+            user.balance += amount;
+        } else {
+            user.balance -= amount;
+        }
+        await user.save();
 
         res.status(201).json(transaction);
     } catch (error) {
-        console.error('Error creating transaction:', error);
-        res.status(500).json({ message: 'Error creating transaction' });
+        console.error('Error adding transaction:', error);
+        res.status(500).json({ error: 'Failed to add transaction' });
+    }
+});
+
+// Get dashboard data
+app.get('/api/dashboard', authMiddleware, async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+        
+        // Get recent transactions
+        const recentTransactions = await Transaction.find({ user: req.user._id })
+            .sort({ date: -1 })
+            .limit(5);
+        
+        // Calculate income and expenses for current month
+        const currentDate = new Date();
+        const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        
+        const monthlyTransactions = await Transaction.find({
+            user: req.user._id,
+            date: { $gte: firstDayOfMonth }
+        });
+        
+        const income = monthlyTransactions
+            .filter(t => t.type === 'income')
+            .reduce((sum, t) => sum + t.amount, 0);
+            
+        const expenses = monthlyTransactions
+            .filter(t => t.type === 'expense')
+            .reduce((sum, t) => sum + t.amount, 0);
+
+        res.json({
+            balance: user.balance,
+            income,
+            expenses,
+            recentTransactions
+        });
+    } catch (error) {
+        console.error('Error getting dashboard data:', error);
+        res.status(500).json({ error: 'Failed to get dashboard data' });
     }
 });
 
