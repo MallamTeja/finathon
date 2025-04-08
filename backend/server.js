@@ -1,12 +1,16 @@
-require('dotenv').config();
+const dotenv = require('dotenv');
+const path = require('path');
+
+// Load environment variables from parent directory
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+
+console.log('Environment variables loaded. MONGODB_URI exists:', !!process.env.MONGODB_URI);
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const path = require('path');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-
-console.log('Starting server with MongoDB URI:', process.env.MONGODB_URI);
 
 // Import models and database connection
 const { connectDB } = require('./db');
@@ -21,17 +25,13 @@ const transactionRoutes = require('./routes/transaction');
 const budgetRoutes = require('./routes/budget');
 const savingsRoutes = require('./routes/savings');
 
-console.log('Starting server...');
-
-// Load environment variables
-console.log('Environment variables loaded');
-
 const app = express();
-console.log('Express app created');
 
 // Middleware
 app.use(cors({
-  origin: '*',  // Allow all origins in development
+  origin: process.env.NODE_ENV === 'production' 
+    ? process.env.FRONTEND_URL 
+    : 'http://localhost:3000',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -42,20 +42,20 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, '../frontend/public')));
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-.then(() => console.log('Connected to MongoDB directly'))
-.catch(err => {
-  console.error('MongoDB connection error (direct):', err);
-  process.exit(1);
+connectDB().then(() => {
+    console.log('Connected to MongoDB successfully');
+}).catch(err => {
+    console.error('Failed to connect to MongoDB:', err);
+    process.exit(1);
 });
 
-// Add error handler for MongoDB connection
-process.on('unhandledRejection', (err) => {
-    console.error('Unhandled Rejection:', err);
-    process.exit(1);
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ 
+        error: 'Something went wrong!',
+        message: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
 });
 
 // API Routes
@@ -84,6 +84,18 @@ app.get('/api', (req, res) => {
             }
         }
     });
+});
+
+// Route to specifically serve mainpage.html
+app.get('/mainpage.html', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/public/mainpage.html'));
+    console.log('Served mainpage.html');
+});
+
+// Serve frontend for any other route
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/public/index.html'));
+    console.log('Served index.html for route:', req.path);
 });
 
 // Auth middleware
@@ -427,18 +439,24 @@ app.get('/api/auth/profile', authMiddleware, async (req, res) => {
     }
 });
 
+// Start server
 const PORT = process.env.PORT || 5000;
-
-// Serve frontend for any other route
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/public/index.html'));
-});
-
-// Listen on all network interfaces
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
     console.log(`Frontend URL: http://localhost:${PORT}`);
     console.log(`API URL: http://localhost:${PORT}/api`);
+});
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (err) => {
+    console.error('Unhandled Rejection:', err);
+    process.exit(1);
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception:', err);
+    process.exit(1);
 });
 
 module.exports = app; 

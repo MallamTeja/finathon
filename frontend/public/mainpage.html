@@ -3715,6 +3715,125 @@
             border-color: var(--primary);
             color: var(--primary);
         }
+
+        /* Filter Button and Dropdown Styles */
+        .filter-container {
+            position: relative;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .filter-button {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 12px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .filter-button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .filter-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            width: 250px;
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            display: none;
+        }
+
+        .filter-dropdown.show {
+            display: block;
+        }
+
+        .filter-section {
+            margin-bottom: 16px;
+        }
+
+        .filter-section h4 {
+            margin: 0 0 8px 0;
+            color: var(--text);
+            font-size: 14px;
+        }
+
+        .filter-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .filter-option input[type="radio"],
+        .filter-option input[type="checkbox"] {
+            margin: 0;
+        }
+
+        .filter-option label {
+            font-size: 14px;
+            color: var(--text);
+            cursor: pointer;
+        }
+
+        .filter-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 16px;
+            gap: 8px;
+        }
+
+        .filter-actions button {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .apply-btn {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .reset-btn {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .apply-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .reset-btn:hover {
+            background-color: #dc2626;
+        }
+
+        @media (max-width: 768px) {
+            .filter-dropdown {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
     </style>
 </head>
 <body>
