@@ -62,40 +62,16 @@ app.use((err, req, res, next) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/budgets', budgetRoutes);
-app.use('/api/savings-goals', savingsRoutes);
+app.use('/api/savings', savingsRoutes);
 
-// Root API route
-app.get('/api', (req, res) => {
-    res.json({
-        message: 'Welcome to FinTrack API',
-        endpoints: {
-            auth: {
-                register: 'POST /api/auth/register',
-                login: 'POST /api/auth/login'
-            },
-            transactions: {
-                list: 'GET /api/transactions',
-                create: 'POST /api/transactions'
-            },
-            savingsGoals: {
-                list: 'GET /api/savings-goals',
-                create: 'POST /api/savings-goals',
-                update: 'PUT /api/savings-goals/:id'
-            }
-        }
-    });
+// Serve mainpage.html for the root route
+app.get('/', (req, res) => {
+    res.redirect('/dashboard.html');
 });
 
-// Route to specifically serve mainpage.html
-app.get('/mainpage.html', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/public/mainpage.html'));
-    console.log('Served mainpage.html');
-});
-
-// Serve frontend for any other route
+// Serve index.html for all other routes
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/public/index.html'));
-    console.log('Served index.html for route:', req.path);
 });
 
 // Auth middleware
@@ -439,13 +415,23 @@ app.get('/api/auth/profile', authMiddleware, async (req, res) => {
     }
 });
 
-// Start server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-    console.log(`Frontend URL: http://localhost:${PORT}`);
-    console.log(`API URL: http://localhost:${PORT}/api`);
-});
+// Start server with port conflict handling
+const startServer = async () => {
+    try {
+        await connectDB();
+        const PORT = process.env.PORT || 5000;
+        app.listen(PORT, () => {
+            console.log(`Server is running on port ${PORT}`);
+            console.log(`Frontend URL: http://localhost:${PORT}`);
+            console.log(`API URL: http://localhost:${PORT}/api`);
+        });
+    } catch (error) {
+        console.error('Failed to start server:', error);
+        process.exit(1);
+    }
+};
+
+startServer();
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {

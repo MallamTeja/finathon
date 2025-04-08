@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinTrack - Transactions</title>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/styles/main.css">
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="/images/logo.png" alt="FinTrack Logo" class="logo">
+            <h2>FinTrack</h2>
+        </div>
+        
+        <ul class="nav-menu">
+            <li>
+                <a href="/dashboard.html" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="/transactions.html" class="nav-link active">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Transactions</span>
+                </a>
+            </li>
+            <li>
+                <a href="/budget.html" class="nav-link">
+                    <i class="fas fa-wallet"></i>
+                    <span>Budget</span>
+                </a>
+            </li>
+            <li>
+                <a href="/reports.html" class="nav-link">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Reports</span>
+                </a>
+            </li>
+            <li>
+                <a href="/settings.html" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </li>
+        </ul>
+        
+        <div class="sidebar-footer">
+            <button class="btn btn-primary btn-block" id="add-transaction-btn">
+                <i class="fas fa-plus"></i>
+                <span>Add Transaction</span>
+            </button>
+        </div>
+    </nav>
+
+    <div class="main-content-wrapper">
+        <header class="header">
+            <div class="header-left">
+                <button id="menu-toggle" class="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="app-title">Transactions</h1>
+            </div>
+            <div class="header-right">
+                <div class="search-bar">
+                    <input type="text" placeholder="Search transactions...">
+                    <i class="fas fa-search"></i>
+                </div>
+                <button id="theme-toggle" class="theme-toggle">🌙</button>
+                <div class="user-profile">
+                    <img src="/images/avatar.png" alt="User Avatar" class="avatar">
+                    <span class="username">John Doe</span>
+                </div>
+            </div>
+        </header>
+
+        <div id="main-content" class="main-content">
+            <!-- Transactions Content -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">All Transactions</h3>
+                </div>
+                <div class="transaction-filters">
+                    <div class="form-group">
+                        <select id="filter-type">
+                            <option value="all">All Types</option>
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <select id="filter-category">
+                            <option value="all">All Categories</option>
+                            <option value="salary">Salary</option>
+                            <option value="groceries">Groceries</option>
+                            <option value="utilities">Utilities</option>
+                            <option value="entertainment">Entertainment</option>
+                            <option value="transport">Transportation</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="date-from">From:</label>
+                        <input type="date" id="date-from">
+                    </div>
+                    <div class="form-group">
+                        <label for="date-to">To:</label>
+                        <input type="date" id="date-to">
+                    </div>
+                    <button class="btn btn-primary" id="apply-filters">Apply Filters</button>
+                </div>
+                <div class="transaction-list" id="transaction-list">
+                    <!-- Sample transaction items - will be populated dynamically -->
+                    <div class="transaction-item">
+                        <div class="transaction-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="transaction-details">
+                            <div class="transaction-title">Grocery Shopping</div>
+                            <div class="transaction-date">Today, 2:34 PM</div>
+                            <div class="transaction-description">Weekly groceries</div>
+                        </div>
+                        <div class="transaction-amount negative">-$85.23</div>
+                    </div>
+                    <div class="transaction-item">
+                        <div class="transaction-icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div class="transaction-details">
+                            <div class="transaction-title">Salary</div>
+                            <div class="transaction-date">Yesterday, 9:00 AM</div>
+                            <div class="transaction-description">Monthly salary</div>
+                        </div>
+                        <div class="transaction-amount positive">+$1,200.00</div>
+                    </div>
+                    <div class="transaction-item">
+                        <div class="transaction-icon">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                        <div class="transaction-details">
+                            <div class="transaction-title">Restaurant</div>
+                            <div class="transaction-date">May 18, 7:45 PM</div>
+                            <div class="transaction-description">Dinner with family</div>
+                        </div>
+                        <div class="transaction-amount negative">-$42.50</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction Modal -->
+    <div id="transaction-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Transaction</h3>
+                <button class="close-button">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="transaction-type">Type</label>
+                    <select id="transaction-type">
+                        <option value="income">Income</option>
+                        <option value="expense">Expense</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="transaction-category">Category</label>
+                    <select id="transaction-category">
+                        <option value="salary">Salary</option>
+                        <option value="groceries">Groceries</option>
+                        <option value="utilities">Utilities</option>
+                        <option value="entertainment">Entertainment</option>
+                        <option value="transport">Transportation</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="transaction-amount">Amount</label>
+                    <input type="number" id="transaction-amount" placeholder="0.00" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label for="transaction-description">Description (Optional)</label>
+                    <input type="text" id="transaction-description" placeholder="Enter description">
+                </div>
+                <div class="form-group">
+                    <label for="transaction-date">Date</label>
+                    <input type="date" id="transaction-date">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancel-transaction">Cancel</button>
+                <button class="btn btn-primary" id="save-transaction">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/scripts/common.js"></script>
+    <script src="/scripts/transactions.js"></script>
+</body>
+</html> 

@@ -1,0 +1,139 @@
+<!-- Sidebar Component -->
+<nav class="sidebar">
+    <div class="sidebar-header">
+        <img src="/images/logo.png" alt="FinTrack Logo" class="logo">
+        <h2>FinTrack</h2>
+    </div>
+    
+    <ul class="nav-menu">
+        <li>
+            <a href="#" class="nav-link active" data-section="dashboard">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+        </li>
+        <li>
+            <a href="#" class="nav-link" data-section="transactions">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Transactions</span>
+            </a>
+        </li>
+        <li>
+            <a href="#" class="nav-link" data-section="budget">
+                <i class="fas fa-wallet"></i>
+                <span>Budget</span>
+            </a>
+        </li>
+        <li>
+            <a href="#" class="nav-link" data-section="reports">
+                <i class="fas fa-chart-bar"></i>
+                <span>Reports</span>
+            </a>
+        </li>
+        <li>
+            <a href="#" class="nav-link" data-section="settings">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+        </li>
+    </ul>
+    
+    <div class="sidebar-footer">
+        <button class="btn btn-primary btn-block" onclick="showAddTransactionModal()">
+            <i class="fas fa-plus"></i>
+            <span>Add Transaction</span>
+        </button>
+    </div>
+</nav>
+
+<style>
+    .sidebar {
+        background: var(--card-bg);
+        min-width: 250px;
+        width: 250px;
+        padding: 1.5rem;
+        border-right: 1px solid var(--border);
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: var(--shadow);
+        z-index: 100;
+    }
+
+    .logo {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 2.5rem;
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .nav-container {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        flex-grow: 1;
+    }
+
+    .nav-button {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem;
+        border-radius: 8px;
+        background: var(--card-bg);
+        color: var(--text);
+        border: none;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .nav-button:hover {
+        background: var(--primary);
+        color: white;
+    }
+
+    .nav-button.active {
+        background: var(--primary);
+        color: white;
+    }
+
+    .user-info {
+        margin-top: auto;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--primary);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .user-details {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .username {
+        font-weight: 600;
+    }
+
+    .user-email {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+    }
+</style> 

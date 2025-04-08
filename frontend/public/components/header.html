@@ -1,0 +1,80 @@
+<!-- Header Component -->
+<header class="header">
+    <div class="header-left">
+        <button id="menu-toggle" class="menu-toggle">
+            <i class="fas fa-bars"></i>
+        </button>
+        <h1 class="app-title">FinTrack</h1>
+    </div>
+    <div class="header-right">
+        <div class="search-bar">
+            <input type="text" placeholder="Search transactions...">
+            <i class="fas fa-search"></i>
+        </div>
+        <button id="theme-toggle" class="theme-toggle">🌙</button>
+        <div class="user-profile">
+            <img src="/images/avatar.png" alt="User Avatar" class="avatar">
+            <span class="username">John Doe</span>
+        </div>
+    </div>
+</header>
+
+<style>
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem;
+        background: var(--card-bg);
+        border-bottom: 1px solid var(--border);
+        position: sticky;
+        top: 0;
+        z-index: 90;
+    }
+
+    .header h1 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .btn-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background: var(--card-bg);
+        color: var(--text);
+        border: 1px solid var(--border);
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .btn-icon:hover {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+
+    .btn-primary {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.25rem;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .btn-primary:hover {
+        background: var(--primary-hover);
+    }
+</style> 
