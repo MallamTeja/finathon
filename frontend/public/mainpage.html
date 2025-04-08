@@ -3652,6 +3652,69 @@
         [data-theme="dark"] .empty-icon {
             background: rgba(59, 130, 246, 0.15);
         }
+
+        /* Form Actions */
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 4px rgba(67, 97, 238, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(67, 97, 238, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text);
+            border: 2px solid var(--border);
+        }
+
+        .btn-outline:hover {
+            background: var(--bg);
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        /* Dark Mode Overrides */
+        [data-theme="dark"] .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        [data-theme="dark"] .btn-outline {
+            color: var(--text);
+            border-color: var(--border);
+        }
+
+        [data-theme="dark"] .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
     </style>
 </head>
 <body>
@@ -3931,7 +3994,7 @@
                                     <button type="reset" class="btn btn-outline">
                                         <i class="fas fa-undo"></i> Reset
                                     </button>
-                                    <button type="submit" class="btn btn-primary" id="addTransactionBtn">
+                                    <button type="submit" class="btn btn-primary">
                                         <i class="fas fa-plus"></i> Add Transaction
                                     </button>
                                 </div>
